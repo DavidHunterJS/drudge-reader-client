@@ -3,7 +3,7 @@ import io from 'socket.io-client';
 import socketIOClient from 'socket.io-client';
 import logo from './logo.svg';
 import './App.css';
-const ENDPOINT = 'http://127.0.0.1:8000';
+const ENDPOINT = 'https://api.isharethings.com';
 
 interface Document {
   title: string;
