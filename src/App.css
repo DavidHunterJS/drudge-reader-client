@@ -36,3 +36,23 @@
     transform: rotate(360deg);
   }
 }
+
+li {
+  list-style-type: none;
+  margin: 2px;
+}
+
+
+a {
+color: unset;
+background: darkorange;
+text-decoration: none;
+}
+
+h1 {
+color: unset;
+  background: darkorange;
+}
+h2 {
+  margin-left: 40px;
+}

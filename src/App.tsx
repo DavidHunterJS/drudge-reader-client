@@ -3,7 +3,10 @@ import io from 'socket.io-client';
 import socketIOClient from 'socket.io-client';
 import logo from './logo.svg';
 import './App.css';
-const ENDPOINT = 'https://api.isharethings.com';
+const ENDPOINT =
+  process.env.NODE_ENV === 'production'
+    ? 'https://api.isharethings.com'
+    : 'http://localhost:8000';
 
 interface Document {
   title: string;
