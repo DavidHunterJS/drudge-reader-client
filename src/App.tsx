@@ -16,6 +16,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     // Connect to the server using Socket.io
+    // const socket = io();
     const socket = socketIOClient(ENDPOINT);
 
     // Listen for the initialDocuments event
