@@ -42,15 +42,14 @@ li {
   margin: 2px;
 }
 
-
 a {
-color: unset;
-background: darkorange;
-text-decoration: none;
+  color: unset;
+  background: darkorange;
+  text-decoration: none;
 }
 
 h1 {
-color: unset;
+  color: unset;
   background: darkorange;
 }
 h2 {

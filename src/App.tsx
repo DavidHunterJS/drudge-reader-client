@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import io from 'socket.io-client';
 import socketIOClient from 'socket.io-client';
-import logo from './logo.svg';
 import './App.css';
 const ENDPOINT =
   process.env.NODE_ENV === 'production'
