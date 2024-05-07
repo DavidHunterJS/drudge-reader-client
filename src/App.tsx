@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import socketIOClient from 'socket.io-client';
 import './App.css';
-const ENDPOINT =
-  process.env.NODE_ENV === 'production'
-    ? 'https://api.isharethings.com'
-    : 'http://localhost:8000';
+const ENDPOINT = 'http://localhost:8000';
 
 interface Document {
   title: string;
