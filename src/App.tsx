@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import socketIOClient from 'socket.io-client';
 import './App.css';
-const ENDPOINT = 'http://localhost:8000';
+const ENDPOINT = 'https://trippy.wtf';
 
 interface Document {
   title: string;
