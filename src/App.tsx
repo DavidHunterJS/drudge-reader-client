@@ -6,7 +6,7 @@ const ENDPOINT = 'https://trippy.wtf';
 interface Document {
   title: string;
   link: string;
-  // Add other document properties as
+  // Add other document properties as needed
 }
 
 const App: React.FC = () => {
