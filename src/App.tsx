@@ -1,52 +1,81 @@
 import React, { useEffect, useState } from 'react';
 import socketIOClient from 'socket.io-client';
+import 'bootswatch/dist/quartz/bootstrap.min.css';
 import './App.css';
-const ENDPOINT = 'https://trippy.wtf';
+const ENDPOINT = 'http://localhost:8000';
 
 interface Document {
   title: string;
   link: string;
-  // Add other document properties as
+  // Add other document properties as needed
 }
 
 const App: React.FC = () => {
   const [documents, setDocuments] = useState<Document[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Connect to the server using Socket.io
     const socket = socketIOClient(ENDPOINT);
 
-    // Listen for the initialDocuments event
-    socket.on('initialDocuments', (initialDocuments: Document[]) => {
-      setDocuments(initialDocuments);
+    socket.on('connect', () => {
+      console.log('Connected to server');
     });
 
-    // Listen for the updateDocuments event
+    socket.on('connect_error', (err) => {
+      console.error('Connection error:', err);
+      setError('Failed to connect to the server');
+    });
+
+    socket.on('disconnect', () => {
+      console.log('Disconnected from server');
+      setError('Disconnected from the server');
+    });
+
+    socket.on('initialDocuments', (initialDocuments: Document[]) => {
+      if (Array.isArray(initialDocuments)) {
+        setDocuments(initialDocuments);
+      } else {
+        console.error('Invalid initialDocuments data:', initialDocuments);
+      }
+    });
+
     socket.on('updateDocuments', (updatedDocuments: Document[]) => {
-      setDocuments(updatedDocuments);
+      if (Array.isArray(updatedDocuments)) {
+        setDocuments(updatedDocuments);
+      } else {
+        console.error('Invalid updatedDocuments data:', updatedDocuments);
+      }
     });
 
     return () => {
-      // Disconnect from the server when the component unmounts
       socket.disconnect();
     };
   }, []);
-  console.log('documents: ', documents);
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
   return (
     <div>
-      <h1>Drudge Reader</h1>
-      <div>
-        <h2>News Stories</h2>
-        <ul>
-          {documents.map((document, index) => (
-            <li key={index}>
-              <a
-                href={document.link}
-                dangerouslySetInnerHTML={{ __html: document.link }}
-              />
-            </li>
-          ))}
-        </ul>
+      <div id="bg">
+        <h1 id="title">
+          Drudge <span id="reader">Reader</span>
+        </h1>
+        <div>
+          <h3 id="cta" className="glowing-text">
+            The Latest Stories
+          </h3>
+          <ul>
+            {documents.map((document, index) => (
+              <li key={index}>
+                <a
+                  href={document.link}
+                  dangerouslySetInnerHTML={{ __html: document.link }}
+                />
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
   );

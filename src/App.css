@@ -1,22 +1,118 @@
+@import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
+
 li {
   list-style-type: none;
   margin: 2px;
 }
 
 a {
-  color: unset;
-  background: darkorange;
   text-decoration: none;
 }
 
 h1 {
   color: unset;
-  background: darkorange;
 }
-h2 {
-  margin-left: 40px;
-  color: maroon;
+
+@keyframes pulsate {
+  0% {
+    text-shadow: 0 0 4px #0000001a;
+    transform: scale(1);
+  }
+  50% {
+    text-shadow: 0 0 8px #0000001a;
+    transform: scale(1.05);
+  }
+  100% {
+    text-shadow: 0 0 4px #0000001a;
+    transform: scale(1);
+  }
 }
-body {
-  background: antiquewhite;
+
+#cta {
+  margin-left: -200px;
+  color: rgb(170, 74, 151);
+  /* animation: pulsate 7s infinite ease-in-out; */
+}
+
+.pulse {
+  animation: pulse-animation 4s infinite;
+}
+
+@keyframes pulse-animation {
+  0% {
+    box-shadow: 0 0 0 0px rgba(0, 0, 0, 0.2);
+  }
+  100% {
+    box-shadow: 0 0 0 20px rgba(255, 255, 255, 0.534);
+  }
+}
+@keyframes glow {
+  0%,
+  100% {
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+  }
+  50% {
+    text-shadow: 0 0 20px rgba(255, 255, 255, 1);
+  }
+}
+
+.glowing-text {
+  font-size: 24px; /* Initial font size, adjust as needed */
+  color: #fff; /* Light text color works better for glow effects */
+  font-weight: bold; /* Bold text to enhance visibility */
+  animation: glow 2s infinite ease-in-out; /* Apply the animation */
+  text-align: center; /* Center align the text (optional) */
+}
+#title {
+  font-size: 50px;
+  font-family: 'Anton', sans-serif;
+  text-align: center;
+  font-style: italic;
+  font-weight: 600;
+  color: black;
+  text-shadow: -4px 4px 8px rgba(0, 0, 0, 0.7);
+}
+#reader {
+  /* font-style: italic; */
+  /* font-weight: 600; */
+  /* font-family: Georgia, 'Times New Roman', Times, serif; */
+}
+ul {
+  text-align: right;
+  list-style-position: inside;
+  margin-right: 15%;
+}
+li {
+  background: -webkit-linear-gradient(45deg, #ff2bbc, #255c8c);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 15pt;
+}
+
+#bg {
+  margin: 1% 3%;
+  padding-top: 10px;
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 32px 0 rgba(197, 28, 202, 0.37);
+  backdrop-filter: blur(1px);
+  -webkit-backdrop-filter: blur(1px);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+#bg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+  border-radius: 10px; /* Match parent's border-radius */
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0.45),
+    /* More opaque at the sides */ rgba(220, 251, 211, 0),
+    /* More transparent at the center */ rgba(255, 255, 255, 0.041)
+      /* More opaque at the sides */
+  );
 }
