@@ -7,6 +7,7 @@ const ENDPOINT = 'https://trippy.wtf';
 interface Document {
   title: string;
   link: string;
+  pageLocation: string;
   // Add other document properties as needed
 }
 
@@ -55,6 +56,21 @@ const App: React.FC = () => {
   if (error) {
     return <div>Error: {error}</div>;
   }
+
+  const pageLocationOrder = [
+    'Headline',
+    'topLeft',
+    'column1',
+    'column2',
+    'column3',
+  ];
+
+  // Sort the documents based on the defined page location order
+  const sortedDocuments = [...documents].sort((a, b) => {
+    const indexA = pageLocationOrder.indexOf(a.pageLocation);
+    const indexB = pageLocationOrder.indexOf(b.pageLocation);
+    return indexA - indexB;
+  });
   return (
     <div>
       <div id="bg">
@@ -66,7 +82,7 @@ const App: React.FC = () => {
             The Latest Stories
           </h3>
           <ul>
-            {documents.map((document, index) => (
+            {sortedDocuments.map((document, index) => (
               <li key={index}>
                 <a
                   href={document.link}
