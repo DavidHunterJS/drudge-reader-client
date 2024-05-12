@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import socketIOClient from 'socket.io-client';
 import 'bootswatch/dist/quartz/bootstrap.min.css';
 import './App.css';
-const ENDPOINT = 'https://localhost:8000';
+const ENDPOINT = 'http://localhost:8000';
 
 interface Document {
   title: string;
