@@ -7,7 +7,7 @@ const ENDPOINT = 'https://localhost:8000';
 interface Document {
   title: string;
   link: string;
-  // Add other document properties as needed
+  // Add other document properties as
 }
 
 const App: React.FC = () => {
