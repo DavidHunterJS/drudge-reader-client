@@ -1,5 +1,6 @@
 {
   "name": "drudge-reader",
+  "proxy": "http://localhost:8000",
   "version": "0.1.0",
   "private": true,
   "homepage": ".",
@@ -16,6 +17,7 @@
     "drudgereport": "^1.1.2",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
+    "react-router-dom": "^6.23.1",
     "react-scripts": "5.0.1",
     "socket.io-client": "^4.7.2",
     "typescript": "^4.6.3",

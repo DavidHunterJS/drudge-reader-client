@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import socketIOClient from 'socket.io-client';
 import 'bootswatch/dist/quartz/bootstrap.min.css';
+import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
+import UserRegistration from './components/userRegistration';
+import LoginForm from './components/loginForm';
 import './App.css';
-const ENDPOINT = 'https://trippy.wtf';
+
+const ENDPOINT = 'http://localhost:8000';
 
 interface Document {
   title: string;
@@ -71,29 +75,55 @@ const App: React.FC = () => {
     const indexB = pageLocationOrder.indexOf(b.pageLocation);
     return indexA - indexB;
   });
+
   return (
-    <div>
-      <div id="bg">
-        <h1 id="title">
-          Drudge <span id="reader">Reader</span>
-        </h1>
-        <div>
-          <h3 id="cta" className="glowing-text">
-            The Latest Stories
-          </h3>
+    <Router>
+      <div>
+        <nav>
           <ul>
-            {sortedDocuments.map((document, index) => (
-              <li key={index}>
-                <a
-                  href={document.link}
-                  dangerouslySetInnerHTML={{ __html: document.link }}
-                />
-              </li>
-            ))}
+            <li>
+              <Link to="/">Home</Link>
+            </li>
+            <li>
+              <Link to="/login">Login</Link>
+            </li>
+            <li>
+              <Link to="/register">Register</Link>
+            </li>
           </ul>
-        </div>
+        </nav>
+
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <div id="bg">
+                <h1 id="title">
+                  Drudge <span id="reader">Reader</span>
+                </h1>
+                <div>
+                  <h3 id="cta" className="glowing-text">
+                    The Latest Stories
+                  </h3>
+                  <ul>
+                    {sortedDocuments.map((document, index) => (
+                      <li key={index}>
+                        <a
+                          href={document.link}
+                          dangerouslySetInnerHTML={{ __html: document.link }}
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            }
+          />
+          <Route path="/register" element={<UserRegistration />} />
+          <Route path="/login" element={<LoginForm />} />
+        </Routes>
       </div>
-    </div>
+    </Router>
   );
 };
 
