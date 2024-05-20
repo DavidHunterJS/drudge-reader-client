@@ -122,7 +122,9 @@ const App: React.FC = () => {
                   <Link to="/admin-dashboard">Admin Dashboard</Link>
                 </li>
                 <li className="items">
-                  <button onClick={handleLogout}>Logout</button>
+                  <Link to="/" onClick={handleLogout}>
+                    Logout
+                  </Link>
                 </li>
               </>
             )}
