@@ -4,6 +4,9 @@ import 'bootswatch/dist/quartz/bootstrap.min.css';
 import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
 import UserRegistration from './components/userRegistration';
 import LoginForm from './components/loginForm';
+import UserProfile from './components/getUserProfile';
+import UpdateUserProfile from './components/updateUserProfile';
+import AdminDashboard from './components/adminDashboard';
 import './App.css';
 
 const ENDPOINT = 'http://localhost:8000';
@@ -18,9 +21,15 @@ interface Document {
 const App: React.FC = () => {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [error, setError] = useState<string | null>(null);
-
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const checkAuthStatus = () => {
+    const token = localStorage.getItem('token');
+    setIsAuthenticated(!!token);
+  };
   useEffect(() => {
     const socket = socketIOClient(ENDPOINT);
+
+    checkAuthStatus();
 
     socket.on('connect', () => {
       console.log('Connected to server');
@@ -57,6 +66,13 @@ const App: React.FC = () => {
     };
   }, []);
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setIsAuthenticated(false);
+    // Redirect to the login page or home page
+    window.location.href = '/';
+  };
+
   if (error) {
     return <div>Error: {error}</div>;
   }
@@ -80,16 +96,36 @@ const App: React.FC = () => {
     <Router>
       <div>
         <nav>
-          <ul>
-            <li>
+          <ul id="list">
+            <li className="items">
               <Link to="/">Home</Link>
             </li>
-            <li>
-              <Link to="/login">Login</Link>
-            </li>
-            <li>
-              <Link to="/register">Register</Link>
-            </li>
+            {!isAuthenticated && (
+              <>
+                <li className="items">
+                  <Link to="/login">Login</Link>
+                </li>
+                <li className="items">
+                  <Link to="/register">Register</Link>
+                </li>
+              </>
+            )}
+            {isAuthenticated && (
+              <>
+                <li className="items">
+                  <Link to="/profile">Profile</Link>
+                </li>
+                <li className="items">
+                  <Link to="/update-profile">Update Profile</Link>
+                </li>
+                <li className="items">
+                  <Link to="/admin-dashboard">Admin Dashboard</Link>
+                </li>
+                <li className="items">
+                  <button onClick={handleLogout}>Logout</button>
+                </li>
+              </>
+            )}
           </ul>
         </nav>
 
@@ -105,7 +141,7 @@ const App: React.FC = () => {
                   <h3 id="cta" className="glowing-text">
                     The Latest Stories
                   </h3>
-                  <ul>
+                  <ul className="list">
                     {sortedDocuments.map((document, index) => (
                       <li key={index}>
                         <a
@@ -120,7 +156,13 @@ const App: React.FC = () => {
             }
           />
           <Route path="/register" element={<UserRegistration />} />
-          <Route path="/login" element={<LoginForm />} />
+          <Route
+            path="/login"
+            element={<LoginForm setIsAuthenticated={setIsAuthenticated} />}
+          />
+          <Route path="/profile" element={<UserProfile />} />
+          <Route path="/update-profile" element={<UpdateUserProfile />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
         </Routes>
       </div>
     </Router>

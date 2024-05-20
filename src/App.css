@@ -73,12 +73,12 @@ h1 {
   text-shadow: -4px 4px 8px rgba(0, 0, 0, 0.7);
 }
 
-ul {
+.list {
   text-align: right;
   list-style-position: inside;
   margin-right: 15%;
 }
-li {
+.list li {
   background: -webkit-linear-gradient(45deg, #ff2bbc, #255c8c);
   -webkit-background-clip: text;
   background-clip: text;
@@ -113,3 +113,39 @@ li {
       /* More opaque at the sides */
   );
 }
+
+nav {
+  padding: 10px;
+}
+
+#list {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.items {
+  margin-right: 10px;
+}
+
+.items:last-child {
+  margin-right: 0;
+}
+
+.home-link {
+  margin-right: auto;
+}
+
+/* .items a {
+  text-decoration: none;
+  color: #333;
+  padding: 5px;
+  border-radius: 5%;
+}
+
+.items a:hover {
+  background-color: #dddddd23;
+} */

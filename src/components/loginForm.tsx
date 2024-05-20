@@ -1,3 +1,4 @@
+//  loginForm.tsx
 import React, { useState } from 'react';
 import axios from 'axios';
 
@@ -5,7 +6,13 @@ const axiosInstance = axios.create({
   baseURL: 'http://localhost:8000/',
 });
 
-const LoginForm: React.FC = () => {
+interface LoginErrorResponse {
+  error: string; // Adapt this based on your server's error response structure
+}
+interface LoginFormProps {
+  setIsAuthenticated: (isAuthenticated: boolean) => void;
+}
+const LoginForm: React.FC<LoginFormProps> = ({ setIsAuthenticated }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -20,9 +27,20 @@ const LoginForm: React.FC = () => {
       });
       const token = response.data.token;
       localStorage.setItem('token', token);
-      // Redirect to a authenticated page or update the UI accordingly
-    } catch (error) {
-      setError('Invalid username or password');
+      setIsAuthenticated(true);
+      // Redirect to an authenticated page or update the UI accordingly
+    } catch (error: any) {
+      console.error('Login failed:', error);
+      if (axios.isAxiosError(error) && error.response) {
+        const serverError = error.response.data as LoginErrorResponse;
+        if (serverError && serverError.error) {
+          setError(serverError.error);
+        } else {
+          setError('An unexpected server error occurred');
+        }
+      } else {
+        setError('An unknown error occurred');
+      }
     }
   };
 
