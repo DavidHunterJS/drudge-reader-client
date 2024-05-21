@@ -9,7 +9,10 @@ import UpdateUserProfile from './components/updateUserProfile';
 import AdminDashboard from './components/adminDashboard';
 import './App.css';
 
-const ENDPOINT = 'https://trippy.wtf';
+const ENDPOINT =
+  process.env.NODE_ENV === 'production'
+    ? process.env.REACT_APP_PROD_ENDPOINT
+    : process.env.REACT_APP_DEV_ENDPOINT;
 
 interface Document {
   title: string;

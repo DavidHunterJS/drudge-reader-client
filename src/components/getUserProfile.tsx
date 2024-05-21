@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+const ENDPOINT =
+  process.env.NODE_ENV === 'production'
+    ? process.env.REACT_APP_PROD_ENDPOINT || ''
+    : process.env.REACT_APP_DEV_ENDPOINT || '';
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:8000/',
+  baseURL: ENDPOINT,
 });
 
 interface User {
