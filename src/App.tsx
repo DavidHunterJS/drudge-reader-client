@@ -9,7 +9,7 @@ import UpdateUserProfile from './components/updateUserProfile';
 import AdminDashboard from './components/adminDashboard';
 import './App.css';
 
-const ENDPOINT = 'http://localhost:8000';
+const ENDPOINT = 'https://trippy.wtf';
 
 interface Document {
   title: string;
