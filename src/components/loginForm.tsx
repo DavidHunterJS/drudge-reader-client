@@ -25,7 +25,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ setIsAuthenticated }) => {
     e.preventDefault();
 
     try {
-      const response = await axiosInstance.post('/api/login', {
+      const response = await axios.post('/api/login', {
         username,
         password,
       });

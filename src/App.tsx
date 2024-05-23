@@ -1,3 +1,4 @@
+// app.tsx
 import React, { useEffect, useState } from 'react';
 import socketIOClient from 'socket.io-client';
 import 'bootswatch/dist/quartz/bootstrap.min.css';
