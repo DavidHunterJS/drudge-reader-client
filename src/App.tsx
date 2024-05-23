@@ -18,7 +18,7 @@ interface Document {
   title: string;
   link: string;
   pageLocation: string;
-  // Add other document properties as need
+  // Add other document properties as needed
 }
 
 const App: React.FC = () => {
