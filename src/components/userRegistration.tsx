@@ -3,7 +3,7 @@ import axios, { AxiosError } from 'axios';
 
 const ENDPOINT =
   process.env.NODE_ENV === 'production'
-    ? ''
+    ? process.env.REACT_APP_PROD_ENDPOINT || ''
     : process.env.REACT_APP_DEV_ENDPOINT || '';
 const axiosInstance = axios.create({
   baseURL: ENDPOINT,
@@ -85,7 +85,7 @@ const UserRegistration: React.FC = () => {
 
     try {
       console.log(formData.role);
-      const response = await axios.post('/api/register', formData);
+      const response = await axiosInstance.post('/api/register', formData);
       console.log('Registration successful:', response.data);
       setServerMessage('Registration successful!');
       // Reset form data

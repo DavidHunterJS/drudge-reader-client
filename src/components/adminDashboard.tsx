@@ -6,7 +6,7 @@ import Modal from './Modal'; // Import the Modal component
 import UserEditForm from './userEditForm'; // Import the User Edit Form component
 const ENDPOINT =
   process.env.NODE_ENV === 'production'
-    ? ''
+    ? process.env.REACT_APP_PROD_ENDPOINT || ''
     : process.env.REACT_APP_DEV_ENDPOINT || '';
 
 const axiosInstance = axios.create({
