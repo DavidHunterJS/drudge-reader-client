@@ -85,7 +85,7 @@ const UserRegistration: React.FC = () => {
 
     try {
       console.log(formData.role);
-      const response = await axiosInstance.post('/api/register', formData);
+      const response = await axios.post('/api/register', formData);
       console.log('Registration successful:', response.data);
       setServerMessage('Registration successful!');
       // Reset form data
