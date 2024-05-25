@@ -16,6 +16,7 @@ interface User {
   id: string;
   username: string;
   email: string;
+  role: string;
   // Add other user properties as needed
 }
 
@@ -121,7 +122,7 @@ const AdminDashboard: React.FC = () => {
       <ul>
         {users.map((user) => (
           <li key={user.id}>
-            {user.username} - {user.email}
+            {user.username} - {user.email} - {user.role}
             <button onClick={() => handleEditUser(user)}>Edit</button>
             <button onClick={() => handleDeleteUser(user.id)}>Delete</button>
           </li>

@@ -6,6 +6,7 @@ interface User {
   id: string;
   username: string;
   email: string;
+  role: string;
   // Include any other properties that a User object should have
 }
 
@@ -19,6 +20,7 @@ const UserEditForm: React.FC<UserEditFormProps> = ({ user, onSave }) => {
     id: user.id,
     username: user.username,
     email: user.email,
+    role: user.role,
     // Initialize any other necessary properties here
   });
 
