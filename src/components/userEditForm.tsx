@@ -31,7 +31,7 @@ const UserEditForm: React.FC<UserEditFormProps> = ({ user, onSave }) => {
       [name]: value,
     }));
   };
-
+  const handleRoleChange = () => {};
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     onSave(editedUser); // Pass the edited user back to the parent component
@@ -57,6 +57,16 @@ const UserEditForm: React.FC<UserEditFormProps> = ({ user, onSave }) => {
           name="email"
           value={editedUser.email}
           onChange={handleChange}
+        />
+      </div>
+      <div>
+        <label htmlFor="role">Role:</label>
+        <input
+          type="role"
+          id="role"
+          name="role"
+          value={editedUser.role}
+          onChange={handleRoleChange}
         />
       </div>
       <button type="submit">Save Changes</button>

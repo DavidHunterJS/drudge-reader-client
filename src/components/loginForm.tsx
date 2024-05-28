@@ -1,6 +1,7 @@
 //  loginForm.tsx
 import React, { useState } from 'react';
 import axios from 'axios';
+import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
 
 const ENDPOINT =
   process.env.NODE_ENV === 'production'
@@ -75,6 +76,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ setIsAuthenticated }) => {
         </div>
         <button type="submit">Login</button>
       </form>
+      <Link to="/password-request">Forgot Password</Link>
     </div>
   );
 };

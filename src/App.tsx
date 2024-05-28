@@ -8,6 +8,8 @@ import LoginForm from './components/loginForm';
 import UserProfile from './components/getUserProfile';
 import UpdateUserProfile from './components/updateUserProfile';
 import AdminDashboard from './components/adminDashboard';
+import PasswordResetRequestForm from './components/PasswordResetRequestForm';
+import ResetPassword from './components/ResetPassword';
 import './App.css';
 
 const ENDPOINT =
@@ -169,6 +171,12 @@ const App: React.FC = () => {
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/update-profile" element={<UpdateUserProfile />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
+
+          <Route path="/password-reset" element={<ResetPassword />} />
+          <Route
+            path="/password-request"
+            element={<PasswordResetRequestForm />}
+          />
         </Routes>
       </div>
     </Router>
