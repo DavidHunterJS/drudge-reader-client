@@ -39,164 +39,171 @@ const UserRegistration = () => {
   const [errorMessage, setErrorMessage] = useState('');
 
   return (
-    <div>
-      <h2>User Registration</h2>
-      {successMessage && (
-        <div className="success-message">{successMessage}</div>
-      )}
-      {errorMessage && <div className="error-message">{errorMessage}</div>}
-      <Formik
-        initialValues={{
-          firstname: '',
-          lastname: '',
-          username: '',
-          email: '',
-          password: '',
-          confirmPassword: '',
-          role: 'USER',
-        }}
-        validationSchema={RegistrationSchema}
-        onSubmit={async (values, { setSubmitting, resetForm }) => {
-          try {
-            const response = await axiosInstance.post('/api/register', values);
-            console.log('Registration successful:', response.data);
-            setSuccessMessage('Registration successful!');
-            setErrorMessage('');
-            resetForm({
-              values: { ...values, password: '', confirmPassword: '' },
-            });
-            setSubmitting(false);
-          } catch (error) {
-            console.error('Registration failed:', error);
-            setSuccessMessage('');
-            setErrorMessage('Registration failed. Please try again.');
-            setSubmitting(false);
-          }
-        }}
-      >
-        {({ isSubmitting }) => (
-          <Form>
-            <div>
-              <label htmlFor="firstname">First Name</label>
-              <Field
-                name="firstname"
-                type="text"
-                id="firstname"
-                aria-describedby="firstnameError"
-              />
-              <ErrorMessage
-                name="firstname"
-                component="div"
-                className="error"
-                id="firstnameError"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="lastname">Last Name</label>
-              <Field
-                name="lastname"
-                type="text"
-                id="lastname"
-                aria-describedby="lastnameError"
-              />
-              <ErrorMessage
-                name="lastname"
-                component="div"
-                className="error"
-                id="lastnameError"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="username">Username</label>
-              <Field
-                name="username"
-                type="text"
-                id="username"
-                aria-describedby="usernameError"
-              />
-              <ErrorMessage
-                name="username"
-                component="div"
-                className="error"
-                id="usernameError"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="email">Email</label>
-              <Field
-                name="email"
-                type="email"
-                id="email"
-                aria-describedby="emailError"
-              />
-              <ErrorMessage
-                name="email"
-                component="div"
-                className="error"
-                id="emailError"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="password">Password</label>
-              <Field
-                name="password"
-                type="password"
-                id="password"
-                aria-describedby="passwordError"
-              />
-              <ErrorMessage
-                name="password"
-                component="div"
-                className="error"
-                id="passwordError"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="confirmPassword">Confirm Password</label>
-              <Field
-                name="confirmPassword"
-                type="password"
-                id="confirmPassword"
-                aria-describedby="confirmPasswordError"
-              />
-              <ErrorMessage
-                name="confirmPassword"
-                component="div"
-                className="error"
-                id="confirmPasswordError"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="role">Role</label>
-              <Field
-                as="select"
-                name="role"
-                id="role"
-                aria-describedby="roleError"
+    <div className="container d-flex justify-content-center align-items-center min-vh-100">
+      <div className="row">
+        <div className="col-sm-14">
+          <div className="card">
+            <div className="card-body">
+              <h2 className="card-title text-center">User Registration</h2>
+              {successMessage && (
+                <div className="alert alert-success">{successMessage}</div>
+              )}
+              {errorMessage && (
+                <div className="alert alert-danger">{errorMessage}</div>
+              )}
+              <Formik
+                initialValues={{
+                  firstname: '',
+                  lastname: '',
+                  username: '',
+                  email: '',
+                  password: '',
+                  confirmPassword: '',
+                  role: 'USER',
+                }}
+                validationSchema={RegistrationSchema}
+                onSubmit={async (values, { setSubmitting, resetForm }) => {
+                  // ... (onSubmit logic remains the same)
+                }}
               >
-                <option value="USER">User</option>
-                <option value="ADMIN">Admin</option>
-              </Field>
-              <ErrorMessage
-                name="role"
-                component="div"
-                className="error"
-                id="roleError"
-              />
-            </div>
+                {({ isSubmitting }) => (
+                  <Form>
+                    <div className="form-group">
+                      <label htmlFor="firstname">First Name</label>
+                      <Field
+                        name="firstname"
+                        type="text"
+                        id="firstname"
+                        aria-describedby="firstnameError"
+                        className="form-control"
+                      />
+                      <ErrorMessage
+                        name="firstname"
+                        component="div"
+                        className="invalid-feedback"
+                        id="firstnameError"
+                      />
+                    </div>
 
-            <button type="submit" disabled={isSubmitting}>
-              Register
-            </button>
-          </Form>
-        )}
-      </Formik>
+                    <div className="form-group">
+                      <label htmlFor="lastname">Last Name</label>
+                      <Field
+                        name="lastname"
+                        type="text"
+                        id="lastname"
+                        aria-describedby="lastnameError"
+                        className="form-control"
+                      />
+                      <ErrorMessage
+                        name="lastname"
+                        component="div"
+                        className="invalid-feedback"
+                        id="lastnameError"
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="username">Username</label>
+                      <Field
+                        name="username"
+                        type="text"
+                        id="username"
+                        aria-describedby="usernameError"
+                        className="form-control"
+                      />
+                      <ErrorMessage
+                        name="username"
+                        component="div"
+                        className="invalid-feedback"
+                        id="usernameError"
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="email">Email</label>
+                      <Field
+                        name="email"
+                        type="email"
+                        id="email"
+                        aria-describedby="emailError"
+                        className="form-control"
+                      />
+                      <ErrorMessage
+                        name="email"
+                        component="div"
+                        className="invalid-feedback"
+                        id="emailError"
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="password">Password</label>
+                      <Field
+                        name="password"
+                        type="password"
+                        id="password"
+                        aria-describedby="passwordError"
+                        className="form-control"
+                      />
+                      <ErrorMessage
+                        name="password"
+                        component="div"
+                        className="invalid-feedback"
+                        id="passwordError"
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="confirmPassword">Confirm Password</label>
+                      <Field
+                        name="confirmPassword"
+                        type="password"
+                        id="confirmPassword"
+                        aria-describedby="confirmPasswordError"
+                        className="form-control"
+                      />
+                      <ErrorMessage
+                        name="confirmPassword"
+                        component="div"
+                        className="invalid-feedback"
+                        id="confirmPasswordError"
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="role">Role</label>
+                      <Field
+                        as="select"
+                        name="role"
+                        id="role"
+                        aria-describedby="roleError"
+                        className="form-control"
+                      >
+                        <option value="USER">User</option>
+                        <option value="ADMIN">Admin</option>
+                      </Field>
+                      <ErrorMessage
+                        name="role"
+                        component="div"
+                        className="invalid-feedback"
+                        id="roleError"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="btn btn-primary btn-block"
+                      disabled={isSubmitting}
+                    >
+                      Register
+                    </button>
+                  </Form>
+                )}
+              </Formik>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

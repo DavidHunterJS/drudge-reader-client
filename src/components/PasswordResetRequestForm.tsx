@@ -1,3 +1,4 @@
+// PasswordResetRequestForm.tsx
 import React, { useState } from 'react';
 import axios from 'axios';
 
@@ -22,23 +23,34 @@ const PasswordResetRequestForm: React.FC = () => {
   };
 
   return (
-    <div>
-      <h2>Password Reset Request</h2>
-      {message && <p className="success-message">{message}</p>}
-      {error && <p className="error-message">{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="email">Email:</label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+    <div className="container d-flex justify-content-center align-items-center min-vh-100">
+      <div className="row">
+        <div className="col-sm-12">
+          <div className="card">
+            <div className="card-body">
+              <h2 className="card-title text-center">Password Reset Request</h2>
+              {message && <p className="alert alert-success">{message}</p>}
+              {error && <p className="alert alert-danger">{error}</p>}
+              <form onSubmit={handleSubmit}>
+                <div className="form-group">
+                  <label htmlFor="email">Email:</label>
+                  <input
+                    type="email"
+                    id="email"
+                    className="form-control"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+                <button type="submit" className="btn btn-primary btn-block">
+                  Request Password Reset
+                </button>
+              </form>
+            </div>
+          </div>
         </div>
-        <button type="submit">Request Password Reset</button>
-      </form>
+      </div>
     </div>
   );
 };

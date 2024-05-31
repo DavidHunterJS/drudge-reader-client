@@ -50,33 +50,49 @@ const LoginForm: React.FC<LoginFormProps> = ({ setIsAuthenticated }) => {
   };
 
   return (
-    <div>
-      <h2>Login</h2>
-      {error && <div className="error">{error}</div>}
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="username">Username:</label>
-          <input
-            type="text"
-            id="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
+    <div className="container d-flex justify-content-center align-items-center min-vh-100">
+      <div className="row">
+        <div className="col-sm-12">
+          <div className="card">
+            <div className="card-body">
+              <h2 className="card-title text-center">Login</h2>
+              {error && <div className="alert alert-danger">{error}</div>}
+              <form onSubmit={handleSubmit}>
+                <fieldset>
+                  <div className="form-group">
+                    <label htmlFor="username">Username:</label>
+                    <input
+                      type="text"
+                      id="username"
+                      className="form-control"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="password">Password:</label>
+                    <input
+                      type="password"
+                      id="password"
+                      className="form-control"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <button type="submit" className="btn btn-primary btn-block">
+                    Login
+                  </button>
+                </fieldset>
+              </form>
+              <div className="text-center mt-3">
+                <Link to="/password-request">Forgot Password</Link>
+              </div>
+            </div>
+          </div>
         </div>
-        <div>
-          <label htmlFor="password">Password:</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        <button type="submit">Login</button>
-      </form>
-      <Link to="/password-request">Forgot Password</Link>
+      </div>
     </div>
   );
 };
