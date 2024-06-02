@@ -169,14 +169,19 @@ const App: React.FC = () => {
                     The Latest Stories
                   </h3>
                   <ul className="list">
-                    {sortedDocuments.map((document, index) => (
-                      <li key={index}>
-                        <a
-                          href={document.link}
-                          dangerouslySetInnerHTML={{ __html: document.link }}
-                        />
-                      </li>
-                    ))}
+                    {sortedDocuments.map((document, index) => {
+                      const modifiedLink = document.link.replace(
+                        /<a/g,
+                        '<a target="_blank"'
+                      );
+                      return (
+                        <li key={index}>
+                          <div
+                            dangerouslySetInnerHTML={{ __html: modifiedLink }}
+                          />
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
               </div>
