@@ -11,6 +11,7 @@ import AdminDashboard from './components/adminDashboard';
 import PasswordResetRequestForm from './components/PasswordResetRequestForm';
 import ResetPassword from './components/ResetPassword';
 import './App.css';
+import { jwtDecode } from 'jwt-decode';
 
 const ENDPOINT =
   process.env.NODE_ENV === 'production'
@@ -21,17 +22,32 @@ interface Document {
   title: string;
   link: string;
   pageLocation: string;
-  // Add other document properties as need
+  // Add other document properties as needed
+}
+
+interface DecodedToken {
+  role: string;
+  // Add other token properties as needed
 }
 
 const App: React.FC = () => {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
   const checkAuthStatus = () => {
     const token = localStorage.getItem('token');
     setIsAuthenticated(!!token);
+
+    if (token) {
+      const decodedToken: DecodedToken = jwtDecode(token);
+      setIsAdmin(decodedToken.role === 'ADMIN');
+    } else {
+      setIsAdmin(false);
+    }
   };
+
   useEffect(() => {
     const socket = socketIOClient(ENDPOINT);
 
@@ -75,6 +91,7 @@ const App: React.FC = () => {
   const handleLogout = () => {
     localStorage.removeItem('token');
     setIsAuthenticated(false);
+    setIsAdmin(false);
     // Redirect to the login page or home page
     window.location.href = '/';
   };
@@ -124,9 +141,11 @@ const App: React.FC = () => {
                 <li className="items">
                   <Link to="/update-profile">Update Profile</Link>
                 </li>
-                <li className="items">
-                  <Link to="/admin-dashboard">Admin Dashboard</Link>
-                </li>
+                {isAdmin && (
+                  <li className="items">
+                    <Link to="/admin-dashboard">Admin Dashboard</Link>
+                  </li>
+                )}
                 <li className="items">
                   <Link to="/" onClick={handleLogout}>
                     Logout
@@ -166,12 +185,16 @@ const App: React.FC = () => {
           <Route path="/register" element={<UserRegistration />} />
           <Route
             path="/login"
-            element={<LoginForm setIsAuthenticated={setIsAuthenticated} />}
+            element={
+              <LoginForm
+                setIsAuthenticated={setIsAuthenticated}
+                setIsAdmin={setIsAdmin}
+              />
+            }
           />
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/update-profile" element={<UpdateUserProfile />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
-
           <Route path="/password-reset" element={<ResetPassword />} />
           <Route
             path="/password-request"
@@ -184,4 +207,3 @@ const App: React.FC = () => {
 };
 
 export default App;
-// ccc

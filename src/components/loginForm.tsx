@@ -1,12 +1,24 @@
-//  loginForm.tsx
+// loginForm.tsx
 import React, { useState } from 'react';
 import axios from 'axios';
 import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
+
+interface LoginFormProps {
+  setIsAuthenticated: (isAuthenticated: boolean) => void;
+  setIsAdmin: (isAdmin: boolean) => void;
+}
+
+interface DecodedToken {
+  role: string;
+  // Add other token properties as needed
+}
 
 const ENDPOINT =
   process.env.NODE_ENV === 'production'
     ? process.env.REACT_APP_PROD_ENDPOINT || ''
     : process.env.REACT_APP_DEV_ENDPOINT || '';
+
 const axiosInstance = axios.create({
   baseURL: ENDPOINT,
 });
@@ -14,10 +26,11 @@ const axiosInstance = axios.create({
 interface LoginErrorResponse {
   error: string; // Adapt this based on your server's error response structure
 }
-interface LoginFormProps {
-  setIsAuthenticated: (isAuthenticated: boolean) => void;
-}
-const LoginForm: React.FC<LoginFormProps> = ({ setIsAuthenticated }) => {
+
+const LoginForm: React.FC<LoginFormProps> = ({
+  setIsAuthenticated,
+  setIsAdmin,
+}) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -30,9 +43,12 @@ const LoginForm: React.FC<LoginFormProps> = ({ setIsAuthenticated }) => {
         username,
         password,
       });
-      const token = response.data.token;
+      const { token } = response.data;
       localStorage.setItem('token', token);
       setIsAuthenticated(true);
+
+      const decodedToken: DecodedToken = jwtDecode(token);
+      setIsAdmin(decodedToken.role === 'ADMIN');
       // Redirect to an authenticated page or update the UI accordingly
     } catch (error: any) {
       console.error('Login failed:', error);

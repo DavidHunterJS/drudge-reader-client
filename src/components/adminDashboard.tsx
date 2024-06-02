@@ -37,13 +37,14 @@ const AdminDashboard: React.FC = () => {
         return;
       }
       try {
-        const response = await axiosInstance.get('/api/admin-dashboard', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        // Decode the token to get the username
+        const decodedToken = JSON.parse(atob(token.split('.')[1]));
+        const username = decodedToken.username;
+
         setIsAdmin(true);
-        setAdminData(response.data);
+        setAdminData({ username });
       } catch (error) {
-        console.error('Error fetching admin data:', error);
+        console.error('Error decoding token:', error);
         navigate('/login');
       } finally {
         setIsLoading(false);
@@ -71,8 +72,13 @@ const AdminDashboard: React.FC = () => {
 
   const handleDeleteUser = async (userId: string) => {
     try {
-      await axiosInstance.delete(`/api/users/${userId}`);
-      setUsers(users.filter((user) => user.id !== userId));
+      const confirmDelete = window.confirm(
+        'Are you sure you want to delete this user?'
+      );
+      if (confirmDelete) {
+        await axiosInstance.delete(`/api/${userId}`);
+        setUsers(users.filter((user) => user.id !== userId));
+      }
     } catch (error) {
       console.error('Error deleting user:', error);
     }
@@ -111,23 +117,40 @@ const AdminDashboard: React.FC = () => {
   }
 
   return (
-    <div>
-      <h2>Admin Dashboard</h2>
-      {adminData && (
+    <div className="container">
+      <h2 className="mb-4">Admin Dashboard</h2>
+      {adminData && adminData.username && (
         <div>
           <p>Welcome, {adminData.username}!</p>
         </div>
       )}
-      <h3>User List</h3>
-      <ul>
+      <h3 className="mt-4">User List</h3>
+      <div className="list-group">
         {users.map((user) => (
-          <li key={user.id}>
-            {user.username} - {user.email} - {user.role}
-            <button onClick={() => handleEditUser(user)}>Edit</button>
-            <button onClick={() => handleDeleteUser(user.id)}>Delete</button>
-          </li>
+          <div
+            key={user.id}
+            className="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+          >
+            <div>
+              {user.username} - {user.email} - {user.role}
+            </div>
+            <div>
+              <button
+                className="btn btn-primary btn-sm me-2"
+                onClick={() => handleEditUser(user)}
+              >
+                Edit
+              </button>
+              <button
+                className="btn btn-danger btn-sm"
+                onClick={() => handleDeleteUser(user.id)}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
         ))}
-      </ul>
+      </div>
       <Modal isOpen={isModalOpen} onClose={() => setModalOpen(false)}>
         {selectedUser && (
           <UserEditForm user={selectedUser} onSave={handleSave} />

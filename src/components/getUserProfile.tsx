@@ -67,16 +67,38 @@ const UserProfile: React.FC = () => {
   }
 
   return (
-    <div>
-      <h2>User Profile</h2>
-      <p>Username: {user.username}</p>
-      <p>Email: {user.email}</p>
-      <p>Name: {user.name}</p>
-      <p>Avatar: {user.avatar}</p>
-      <p>Role: {user.role}</p>
-      <p>Created At: {user.createdAt}</p>
-      <p>Updated At: {user.updatedAt}</p>
-      {/* Display other user properties as needed */}
+    <div className="container mt-5">
+      <div className="row">
+        <div className="col-md-6 offset-md-3">
+          <div className="card">
+            <div className="card-body">
+              <h2 className="card-title mb-4">User Profile</h2>
+              <div className="mb-3">
+                <strong>Username:</strong> {user.username}
+              </div>
+              <div className="mb-3">
+                <strong>Email:</strong> {user.email}
+              </div>
+              <div className="mb-3">
+                <strong>Name:</strong> {user.name}
+              </div>
+              <div className="mb-3">
+                <strong>Avatar:</strong> {user.avatar}
+              </div>
+              <div className="mb-3">
+                <strong>Role:</strong> {user.role}
+              </div>
+              <div className="mb-3">
+                <strong>Created At:</strong> {user.createdAt}
+              </div>
+              <div className="mb-3">
+                <strong>Updated At:</strong> {user.updatedAt}
+              </div>
+              {/* Display other user properties as needed */}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

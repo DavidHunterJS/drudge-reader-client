@@ -31,7 +31,13 @@ const UserEditForm: React.FC<UserEditFormProps> = ({ user, onSave }) => {
       [name]: value,
     }));
   };
-  const handleRoleChange = () => {};
+  const handleRoleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedRole = event.target.value;
+    setEditedUser((prevUser) => ({
+      ...prevUser,
+      role: selectedRole,
+    }));
+  };
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     onSave(editedUser); // Pass the edited user back to the parent component
@@ -39,37 +45,50 @@ const UserEditForm: React.FC<UserEditFormProps> = ({ user, onSave }) => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <div>
-        <label htmlFor="username">Username:</label>
+      <div className="mb-3">
+        <label htmlFor="username" className="form-label">
+          Username:
+        </label>
         <input
           type="text"
           id="username"
           name="username"
           value={editedUser.username}
           onChange={handleChange}
+          className="form-control"
         />
       </div>
-      <div>
-        <label htmlFor="email">Email:</label>
+      <div className="mb-3">
+        <label htmlFor="email" className="form-label">
+          Email:
+        </label>
         <input
           type="email"
           id="email"
           name="email"
           value={editedUser.email}
           onChange={handleChange}
+          className="form-control"
         />
       </div>
-      <div>
-        <label htmlFor="role">Role:</label>
-        <input
-          type="role"
+      <div className="mb-3">
+        <label htmlFor="role" className="form-label">
+          Role:
+        </label>
+        <select
           id="role"
           name="role"
           value={editedUser.role}
           onChange={handleRoleChange}
-        />
+          className="form-select"
+        >
+          <option value="user">User</option>
+          <option value="admin">Admin</option>
+        </select>
       </div>
-      <button type="submit">Save Changes</button>
+      <button type="submit" className="btn btn-primary">
+        Save Changes
+      </button>
     </form>
   );
 };
