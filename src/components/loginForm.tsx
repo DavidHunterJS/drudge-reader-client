@@ -1,7 +1,13 @@
 // loginForm.tsx
 import React, { useState } from 'react';
 import axios from 'axios';
-import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Route,
+  Link,
+  Routes,
+  useNavigate,
+} from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 
 interface LoginFormProps {
@@ -34,6 +40,8 @@ const LoginForm: React.FC<LoginFormProps> = ({
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,7 +57,13 @@ const LoginForm: React.FC<LoginFormProps> = ({
 
       const decodedToken: DecodedToken = jwtDecode(token);
       setIsAdmin(decodedToken.role === 'ADMIN');
-      // Redirect to an authenticated page or update the UI accordingly
+
+      setSuccess('Login successful!');
+      setError('');
+      // Wait for 3 seconds before navigating to the root directory
+      setTimeout(() => {
+        navigate('/');
+      }, 2000);
     } catch (error: any) {
       console.error('Login failed:', error);
       if (axios.isAxiosError(error) && error.response) {
@@ -62,6 +76,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
       } else {
         setError('An unknown error occurred');
       }
+      setSuccess('');
     }
   };
 
@@ -72,7 +87,16 @@ const LoginForm: React.FC<LoginFormProps> = ({
           <div className="card">
             <div className="card-body">
               <h2 className="card-title text-center">Login</h2>
-              {error && <div className="alert alert-danger">{error}</div>}
+              {success && (
+                <div className="alert alert-success" role="alert">
+                  {success}
+                </div>
+              )}
+              {error && (
+                <div className="alert alert-danger" role="alert">
+                  {error}
+                </div>
+              )}
               <form onSubmit={handleSubmit}>
                 <fieldset>
                   <div className="form-group">
@@ -103,7 +127,10 @@ const LoginForm: React.FC<LoginFormProps> = ({
                 </fieldset>
               </form>
               <div className="text-center mt-3">
-                <Link to="/password-request">Forgot Password</Link>
+                <Link to="/password-request">Forgot Password?</Link>
+              </div>
+              <div className="text-center mt-3">
+                <Link to="/register"> Sign Up</Link>
               </div>
             </div>
           </div>
