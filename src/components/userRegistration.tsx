@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { Formik, Form, Field, ErrorMessage, FormikHelpers } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
 
@@ -31,11 +31,69 @@ const RegistrationSchema = Yup.object().shape({
   confirmPassword: Yup.string()
     .oneOf([Yup.ref('password')], 'Passwords must match')
     .required('Confirm Password is required'),
+  role: Yup.string().required('Role is required'),
 });
+
+interface FormValues {
+  firstname: string;
+  lastname: string;
+  username: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  role: string;
+}
 
 const UserRegistration = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+
+  const handleSubmit = async (
+    values: FormValues,
+    { setSubmitting, setFieldError }: FormikHelpers<FormValues>
+  ) => {
+    try {
+      console.log('handleSubmit Fired!!~~~');
+      // Send a POST request to the backend API to create the user
+      const response = await axiosInstance.post('/api/register', values);
+
+      // Clear form fields
+      setSuccessMessage('User registered successfully');
+      setErrorMessage('');
+    } catch (error) {
+      console.error('Error registering user:', error);
+
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          const errorData = error.response.data;
+          if (
+            typeof errorData === 'object' &&
+            errorData !== null &&
+            (errorData as { error?: string }).error ===
+              'Username or email already exists'
+          ) {
+            setFieldError('username', 'Username already exists');
+            setFieldError('email', 'Email already exists');
+          } else {
+            setErrorMessage('An error occurred while registering user');
+          }
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          setErrorMessage('An error occurred while sending the request');
+        }
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        setErrorMessage('An unexpected error occurred');
+      }
+
+      setSuccessMessage('');
+    }
+
+    // Set submitting to false to re-enable the submit button
+    setSubmitting(false);
+  };
 
   return (
     <div className="container d-flex justify-content-center align-items-center min-vh-100">
@@ -58,13 +116,12 @@ const UserRegistration = () => {
                   email: '',
                   password: '',
                   confirmPassword: '',
+                  role: 'USER',
                 }}
                 validationSchema={RegistrationSchema}
-                onSubmit={async (values, { setSubmitting, resetForm }) => {
-                  // ... (onSubmit logic remains the same)
-                }}
+                onSubmit={handleSubmit}
               >
-                {({ isSubmitting }) => (
+                {({ isSubmitting, errors, touched }) => (
                   <Form>
                     <div className="form-group">
                       <label htmlFor="firstname">First Name</label>
@@ -107,7 +164,11 @@ const UserRegistration = () => {
                         type="text"
                         id="username"
                         aria-describedby="usernameError"
-                        className="form-control"
+                        className={`form-control ${
+                          errors.username && touched.username
+                            ? 'is-invalid'
+                            : ''
+                        }`}
                       />
                       <ErrorMessage
                         name="username"
@@ -124,7 +185,9 @@ const UserRegistration = () => {
                         type="email"
                         id="email"
                         aria-describedby="emailError"
-                        className="form-control"
+                        className={`form-control ${
+                          errors.email && touched.email ? 'is-invalid' : ''
+                        }`}
                       />
                       <ErrorMessage
                         name="email"
@@ -168,16 +231,24 @@ const UserRegistration = () => {
                       />
                     </div>
 
-                    <div className="form-group">
+                    {/* <div className="form-group">
                       <label htmlFor="role">Role</label>
-
+                      <Field
+                        as="select"
+                        name="role"
+                        id="role"
+                        aria-describedby="roleError"
+                        className="form-control"
+                      >
+                        <option value="USER">User</option>
+                      </Field>
                       <ErrorMessage
                         name="role"
                         component="div"
                         className="invalid-feedback"
                         id="roleError"
                       />
-                    </div>
+                    </div> */}
 
                     <button
                       type="submit"
