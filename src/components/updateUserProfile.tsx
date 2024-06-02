@@ -13,6 +13,7 @@ interface User {
   username: string;
   email: string;
   name: string;
+  role: string;
   // Add other properties as needed
 }
 
@@ -74,11 +75,6 @@ const UpdateUserProfile: React.FC = () => {
           },
         }
       );
-
-      // Optionally, you can fetch the updated user profile again
-      // or update the user state with the new values
-      // setUser({ ...user, name, email });
-
       // Redirect to the profile page or show a success message
       navigate('/profile');
     } catch (error) {

@@ -84,19 +84,23 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleSave = async (updatedUser: User) => {
+  const handleSave = async (editedUser: User) => {
     try {
+      // Extract the necessary fields from the editedUser object
+      const { id, username, email, role } = editedUser;
+
       // Make an API request to update the user on the server
-      const response = await axiosInstance.put(
-        `/api/users/${updatedUser.id}`,
-        updatedUser
-      );
+      const response = await axiosInstance.put(`/api/users/${editedUser.id}`, {
+        name: username,
+        email,
+        role,
+      });
 
       if (response.status === 200) {
         // If the update is successful, update the users state
         setUsers((prevUsers) =>
           prevUsers.map((user) =>
-            user.id === updatedUser.id ? updatedUser : user
+            user.id === editedUser.id ? editedUser : user
           )
         );
         setModalOpen(false); // Close the modal
