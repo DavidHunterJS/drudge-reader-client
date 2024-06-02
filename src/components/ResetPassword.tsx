@@ -102,55 +102,81 @@ const ResetPassword = () => {
 
   if (tokenError) {
     return (
-      <div>
-        <p>{tokenError}</p>
+      <div className="container mt-4">
+        <div className="alert alert-danger" role="alert">
+          {tokenError}
+        </div>
         <p>Redirecting to login page...</p>
       </div>
     );
   }
 
   if (!tokenVerified) {
-    return <div>Verifying token...</div>;
+    return (
+      <div className="container mt-4">
+        <p>Verifying token...</p>
+      </div>
+    );
   }
 
   if (success) {
     return (
-      <div>
-        <p>Password has been successfully reset!</p>
+      <div className="container mt-4">
+        <div className="alert alert-success" role="alert">
+          Password has been successfully reset!
+        </div>
         <p>You will be redirected to the login page shortly.</p>
       </div>
     );
   }
 
   return (
-    <div>
-      <h2>Reset Password</h2>
-      {error && <p>{error}</p>}
-      {tokenVerified && !success && (
-        <form onSubmit={handleSubmit}>
-          <div>
-            <label htmlFor="newPassword">New Password:</label>
-            <input
-              type="password"
-              id="newPassword"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              required
-            />
+    <div className="container mt-4">
+      <div className="row justify-content-center">
+        <div className="col-md-6">
+          <div className="card">
+            <div className="card-header">
+              <h2>Reset Password</h2>
+            </div>
+            <div className="card-body">
+              {error && <div className="alert alert-danger">{error}</div>}
+              {tokenVerified && !success && (
+                <form onSubmit={handleSubmit}>
+                  <div className="mb-3">
+                    <label htmlFor="newPassword" className="form-label">
+                      New Password:
+                    </label>
+                    <input
+                      type="password"
+                      id="newPassword"
+                      className="form-control"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="confirmPassword" className="form-label">
+                      Confirm Password:
+                    </label>
+                    <input
+                      type="password"
+                      id="confirmPassword"
+                      className="form-control"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <button type="submit" className="btn btn-primary">
+                    Reset Password
+                  </button>
+                </form>
+              )}
+            </div>
           </div>
-          <div>
-            <label htmlFor="confirmPassword">Confirm Password:</label>
-            <input
-              type="password"
-              id="confirmPassword"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
-          </div>
-          <button type="submit">Reset Password</button>
-        </form>
-      )}
+        </div>
+      </div>
     </div>
   );
 };

@@ -31,7 +31,6 @@ const RegistrationSchema = Yup.object().shape({
   confirmPassword: Yup.string()
     .oneOf([Yup.ref('password')], 'Passwords must match')
     .required('Confirm Password is required'),
-  role: Yup.string().required('Role is required'),
 });
 
 const UserRegistration = () => {
@@ -59,7 +58,6 @@ const UserRegistration = () => {
                   email: '',
                   password: '',
                   confirmPassword: '',
-                  role: 'USER',
                 }}
                 validationSchema={RegistrationSchema}
                 onSubmit={async (values, { setSubmitting, resetForm }) => {
@@ -172,16 +170,7 @@ const UserRegistration = () => {
 
                     <div className="form-group">
                       <label htmlFor="role">Role</label>
-                      <Field
-                        as="select"
-                        name="role"
-                        id="role"
-                        aria-describedby="roleError"
-                        className="form-control"
-                      >
-                        <option value="USER">User</option>
-                        <option value="ADMIN">Admin</option>
-                      </Field>
+
                       <ErrorMessage
                         name="role"
                         component="div"
