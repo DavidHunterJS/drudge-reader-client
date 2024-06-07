@@ -11,6 +11,9 @@ const ENDPOINT =
 
 const axiosInstance = axios.create({
   baseURL: ENDPOINT,
+  headers: {
+    Authorization: `Bearer ${localStorage.getItem('token')}`,
+  },
 });
 interface User {
   id: string;

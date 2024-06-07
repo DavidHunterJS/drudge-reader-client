@@ -161,3 +161,8 @@ li span:first-child {
   background: none; /* Remove any background color */
   -webkit-text-fill-color: initial; /* Reset text fill color */
 }
+
+/* FORUM LINK */
+.items > a:nth-child(1) {
+  color: #cdc4fa;
+}

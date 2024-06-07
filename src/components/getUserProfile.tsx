@@ -7,6 +7,9 @@ const ENDPOINT =
     : process.env.REACT_APP_DEV_ENDPOINT || '';
 const axiosInstance = axios.create({
   baseURL: ENDPOINT,
+  headers: {
+    Authorization: `Bearer ${localStorage.getItem('token')}`,
+  },
 });
 
 interface User {

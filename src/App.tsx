@@ -18,6 +18,8 @@ import PasswordResetRequestForm from './components/PasswordResetRequestForm';
 import ResetPassword from './components/ResetPassword';
 import './App.css';
 import { jwtDecode } from 'jwt-decode';
+import data from '@emoji-mart/data';
+import Picker from '@emoji-mart/react';
 
 const ENDPOINT =
   process.env.NODE_ENV === 'production'
@@ -179,6 +181,7 @@ const App: React.FC = () => {
       console.error('Error fetching data:', error);
     }
   };
+
   // Sort the documents based on the defined page location order
   const sortedDocuments = [...documents].sort((a, b) => {
     const indexA = pageLocationOrder.indexOf(a.pageLocation);
@@ -192,7 +195,7 @@ const App: React.FC = () => {
         <nav>
           <ul id="list">
             <li className="items">
-              <Link to="/">Home</Link>
+              <Link to="https://trippy.wtf/forum">Forum</Link>
             </li>
             {!isAuthenticated && (
               <>
@@ -258,11 +261,8 @@ const App: React.FC = () => {
                         linkText
                       )}`;
                       return (
-                        <li key={index}>
-                          <span
-                            onClick={(e) => handleClick(e, apiUrl, linkText)}
-                            dangerouslySetInnerHTML={{ __html: newLink }}
-                          />
+                        <li key={index} style={{ position: 'relative' }}>
+                          <span dangerouslySetInnerHTML={{ __html: newLink }} />
                           <span
                             dangerouslySetInnerHTML={{ __html: modifiedLink }}
                           />
