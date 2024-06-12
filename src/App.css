@@ -2,7 +2,6 @@
 
 li {
   list-style-type: none;
-  margin: 2px;
 }
 
 a {
@@ -13,6 +12,9 @@ h1 {
   color: unset;
 }
 
+/* 
+  PULSING TEXT
+*/
 @keyframes pulsate {
   0% {
     text-shadow: 0 0 4px #0000001a;
@@ -63,6 +65,11 @@ h1 {
   animation: glow 2s infinite ease-in-out; /* Apply the animation */
   text-align: center; /* Center align the text (optional) */
 }
+
+/* 
+  END PULSING TEXT END
+*/
+
 #title {
   font-size: 70px;
   font-family: 'Anton', sans-serif;
@@ -125,12 +132,19 @@ nav {
   justify-content: space-between;
   align-items: center;
   list-style-type: none;
-  margin: 0;
-  padding: 0;
+  margin-right: 2em;
+  margin-left: 0;
+  margin-bottom: -4px;
+  font-family: 'Anton', sans-serif;
+  font-style: italic;
 }
 
 .items {
+  background-color: white;
   margin-right: 10px;
+}
+.items a {
+  color: black;
 }
 
 .items:last-child {
@@ -162,7 +176,28 @@ li span:first-child {
   -webkit-text-fill-color: initial; /* Reset text fill color */
 }
 
-/* FORUM LINK */
-.items > a:nth-child(1) {
-  color: #cdc4fa;
+/* 
+
+  TOOL TIPS =======================>
+
+*/
+.toolz {
+}
+
+.tooltipimg {
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+}
+
+.toolz:hover .tooltipimg {
+  visibility: visible;
 }

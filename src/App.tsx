@@ -11,15 +11,14 @@ import {
 } from 'react-router-dom';
 import UserRegistration from './components/userRegistration';
 import LoginForm from './components/loginForm';
-import UserProfile from './components/getUserProfile';
 import UpdateUserProfile from './components/updateUserProfile';
 import AdminDashboard from './components/adminDashboard';
 import PasswordResetRequestForm from './components/PasswordResetRequestForm';
 import ResetPassword from './components/ResetPassword';
 import './App.css';
 import { jwtDecode } from 'jwt-decode';
-import data from '@emoji-mart/data';
-import Picker from '@emoji-mart/react';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
+import screen from './images/screen.png';
 
 const ENDPOINT =
   process.env.NODE_ENV === 'production'
@@ -188,47 +187,52 @@ const App: React.FC = () => {
     const indexB = pageLocationOrder.indexOf(b.pageLocation);
     return indexA - indexB;
   });
-
+  const handleMouseMove = (event: React.MouseEvent<HTMLLIElement>) => {
+    const tooltip = event.currentTarget.querySelector(
+      '.tooltipimg'
+    ) as HTMLElement;
+    if (tooltip) {
+      const { left, top } = event.currentTarget.getBoundingClientRect();
+      const offsetX = 10; // Adjust the horizontal offset as needed
+      const offsetY = 10; // Adjust the vertical offset as needed
+      tooltip.style.left = `${event.clientX - left + offsetX}px`;
+      tooltip.style.top = `${event.clientY - top + offsetY}px`;
+    }
+  };
   return (
     <Router>
       <div>
-        <nav>
-          <ul id="list">
-            <li className="items">
-              <Link to="https://trippy.wtf/forum">Forum</Link>
-            </li>
-            {!isAuthenticated && (
-              <>
-                <li className="items">
-                  <Link to="/login">Login</Link>
-                </li>
-                <li className="items">
-                  <Link to="/register">Register</Link>
-                </li>
-              </>
-            )}
-            {isAuthenticated && (
-              <>
-                <li className="items">
-                  <Link to="/profile">Profile</Link>
-                </li>
-                <li className="items">
-                  <Link to="/update-profile">Update Profile</Link>
-                </li>
-                {isAdmin && (
+        <div>
+          <nav>
+            <ul id="list">
+              <li className="items">
+                <Link to="/">HOME</Link>
+              </li>
+              <li className="items">
+                <Link to="https://trippy.wtf/forum">FORUM</Link>
+              </li>
+              <li className="items">
+                <Link to="/login">LOGIN</Link>
+              </li>
+              <li className="items">
+                <Link to="/signup">SIGNUP</Link>
+              </li>
+              {isAuthenticated && (
+                <>
                   <li className="items">
-                    <Link to="/admin-dashboard">Admin Dashboard</Link>
+                    <Link to="/profile">Profile</Link>
                   </li>
-                )}
-                <li className="items">
-                  <Link to="/" onClick={handleLogout}>
-                    Logout
-                  </Link>
-                </li>
-              </>
-            )}
-          </ul>
-        </nav>
+
+                  <li className="items">
+                    <Link to="/" onClick={handleLogout}>
+                      Logout
+                    </Link>
+                  </li>
+                </>
+              )}
+            </ul>
+          </nav>
+        </div>
 
         <Routes>
           <Route
@@ -240,7 +244,7 @@ const App: React.FC = () => {
                 </h1>
                 <div>
                   <h3 id="cta" className="glowing-text">
-                    The Latest Stories
+                    Read and Comment On The Latest News Stories
                   </h3>
                   <ul className="list">
                     {sortedDocuments.map((document, index) => {
@@ -253,18 +257,31 @@ const App: React.FC = () => {
                       const linkTextMatch =
                         document.link.match(/<a[^>]*>([^<]*)<\/a>/);
                       const linkText = linkTextMatch ? linkTextMatch[1] : '';
+
                       // Create the new link with the correct URL format
                       const newLink = `<a href="https://trippy.wtf/forum/composer?title=${encodeURIComponent(
                         linkText
-                      )}" target="_blank" className="new" >\u{1F632}</a>`;
+                      )}" target="_blank" className="new" >\u{1F4DD}</a>`;
+
                       const apiUrl = `https://trippy.wtf/forum/api/discussions?filter[q]=${encodeURIComponent(
                         linkText
                       )}`;
+
                       return (
-                        <li key={index} style={{ position: 'relative' }}>
+                        <li
+                          className="toolz"
+                          key={index}
+                          style={{ position: 'relative' }}
+                          onMouseMove={handleMouseMove}
+                        >
                           <span dangerouslySetInnerHTML={{ __html: newLink }} />
                           <span
                             dangerouslySetInnerHTML={{ __html: modifiedLink }}
+                          />
+                          <img
+                            className="tooltipimg"
+                            src={screen}
+                            alt="tooltip"
                           />
                         </li>
                       );
@@ -274,7 +291,7 @@ const App: React.FC = () => {
               </div>
             }
           />
-          <Route path="/register" element={<UserRegistration />} />
+          <Route path="/signup" element={<UserRegistration />} />
           <Route
             path="/login"
             element={
@@ -284,7 +301,7 @@ const App: React.FC = () => {
               />
             }
           />
-          <Route path="/profile" element={<UserProfile />} />
+
           <Route path="/update-profile" element={<UpdateUserProfile />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/password-reset" element={<ResetPassword />} />

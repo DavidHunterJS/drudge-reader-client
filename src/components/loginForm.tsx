@@ -47,23 +47,32 @@ const LoginForm: React.FC<LoginFormProps> = ({
     e.preventDefault();
 
     try {
-      const response = await axiosInstance.post('/api/login', {
-        username,
-        password,
+      const response = await axios.post('https://trippy.wtf/forum/api/token', {
+        identification: username,
+        password: password,
       });
+
       const { token } = response.data;
-      localStorage.setItem('token', token);
-      setIsAuthenticated(true);
 
-      const decodedToken: DecodedToken = jwtDecode(token);
-      setIsAdmin(decodedToken.role === 'ADMIN');
+      if (token) {
+        console.log(token);
+        localStorage.setItem('token', token);
+        setIsAuthenticated(true);
 
-      setSuccess('Login successful!');
-      setError('');
-      // Wait for 3 seconds before navigating to the root directory
-      setTimeout(() => {
-        navigate('/');
-      }, 2000);
+        // Decode the token to get user information
+        // const decodedToken: DecodedToken = jwtDecode(token);
+        // console.log(decodedToken);
+
+        setSuccess('Login successful!');
+        setError('');
+        // Wait for 2 seconds before navigating to the root directory
+        setTimeout(() => {
+          navigate('/');
+        }, 2000);
+      } else {
+        setError('Invalid token received from the server');
+        setSuccess('');
+      }
     } catch (error: any) {
       console.error('Login failed:', error);
       if (axios.isAxiosError(error) && error.response) {
