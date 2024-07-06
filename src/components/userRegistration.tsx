@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage, FormikHelpers } from 'formik';
 import * as Yup from 'yup';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 const ENDPOINT =
   process.env.NODE_ENV === 'production'
@@ -12,7 +12,7 @@ const axiosInstance = axios.create({ baseURL: ENDPOINT });
 // Validation Schema using Yup
 const RegistrationSchema = Yup.object().shape({
   username: Yup.string()
-    .min(2, 'Userame is too short!')
+    .min(2, 'Username is too short!')
     .max(16, 'Username is too long')
     .required('Username is required'),
   email: Yup.string().email('Invalid email').required('Email is required'),
@@ -26,6 +26,17 @@ interface FormValues {
   username: string;
   email: string;
   password: string;
+}
+
+interface ErrorResponse {
+  errors: Array<{
+    status: string;
+    code: string;
+    detail: string;
+    source?: {
+      pointer: string;
+    };
+  }>;
 }
 
 const UserRegistration = () => {
@@ -44,11 +55,17 @@ const UserRegistration = () => {
         'https://trippy.wtf/forum/api/users',
         {
           data: {
-            attributes: values,
+            attributes: {
+              username: values.username,
+              email: values.email,
+              password: values.password,
+            },
           },
         },
         {
           headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
             Authorization:
               'Token ify0FZ00A!JT##Le]5mhR{1y?%!0E3R+G9keQW#7; userId=1',
           },
@@ -67,7 +84,32 @@ const UserRegistration = () => {
         window.location.href = '/';
       }, 15000);
     } catch (error) {
-      // ... (error handling code remains the same)
+      if (axios.isAxiosError(error)) {
+        const axiosError = error as AxiosError;
+        if (axiosError.response) {
+          console.log(axiosError);
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          const errorData = axiosError.response.data as ErrorResponse;
+          if (errorData && errorData.errors && errorData.errors.length > 0) {
+            const errorDetails = errorData.errors
+              .map((err) => err.detail)
+              .join(', ');
+            setErrorMessage(`Validation error(s): ${errorDetails}`);
+          } else {
+            setErrorMessage('An error occurred. Please try again.');
+          }
+        } else if (axiosError.request) {
+          // The request was made but no response was received
+          setErrorMessage('No response received from the server.');
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          setErrorMessage('Error setting up the request.');
+        }
+      } else {
+        setErrorMessage('An unknown error occurred.');
+      }
+      setSuccessMessage('');
     }
 
     // Set submitting to false to re-enable the submit button
@@ -145,7 +187,11 @@ const UserRegistration = () => {
                         type="password"
                         id="password"
                         aria-describedby="passwordError"
-                        className="form-control"
+                        className={`form-control ${
+                          errors.password && touched.password
+                            ? 'is-invalid'
+                            : ''
+                        }`}
                       />
                       <ErrorMessage
                         name="password"

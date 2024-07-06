@@ -12,63 +12,18 @@ h1 {
   color: unset;
 }
 
-/* 
-  PULSING TEXT
-*/
-@keyframes pulsate {
-  0% {
-    text-shadow: 0 0 4px #0000001a;
-    transform: scale(1);
-  }
-  50% {
-    text-shadow: 0 0 8px #0000001a;
-    transform: scale(1.05);
-  }
-  100% {
-    text-shadow: 0 0 4px #0000001a;
-    transform: scale(1);
-  }
+#main {
+  margin-top: -18px;
 }
 
 #cta {
-  margin-left: -30%;
-  color: rgb(170, 74, 151);
-  /* animation: pulsate 7s infinite ease-in-out; 8888*/
-}
-
-.pulse {
-  animation: pulse-animation 4s infinite;
-}
-
-@keyframes pulse-animation {
-  0% {
-    box-shadow: 0 0 0 0px rgba(0, 0, 0, 0.2);
-  }
-  100% {
-    box-shadow: 0 0 0 20px rgba(255, 255, 255, 0.534);
-  }
-}
-@keyframes glow {
-  0%,
-  100% {
-    text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
-  }
-  50% {
-    text-shadow: 0 0 20px rgba(255, 23, 23, 0.253);
-  }
-}
-
-.glowing-text {
-  font-size: 24px; /* Initial font size, adjust as needed */
-  color: #fff; /* Light text color works better for glow effects */
-  font-weight: bold; /* Bold text to enhance visibility */
-  animation: glow 2s infinite ease-in-out; /* Apply the animation */
+  margin-top: -2%;
+  color: #0c2f4e;
+  margin-bottom: 30px;
   text-align: center; /* Center align the text (optional) */
+  font-size: 17px; /* Initial font size, adjust as needed */
+  font-weight: bold; /* Bold text to enhance visibility */
 }
-
-/* 
-  END PULSING TEXT END
-*/
 
 #title {
   font-size: 70px;
@@ -83,11 +38,11 @@ h1 {
 }
 
 .list {
-  text-align: right;
+  text-align: left;
   list-style-position: inside;
   margin-right: 15%;
 }
-.list li {
+.toolz {
   background: -webkit-linear-gradient(45deg, #ff2bbc, #0c2f4e);
   -webkit-background-clip: text;
   background-clip: text;
@@ -96,10 +51,10 @@ h1 {
 }
 
 #bg {
-  margin: 1% 3%;
+  margin: 27px 3%;
   padding-top: 10px;
   background: rgba(255, 255, 255, 0.25);
-  box-shadow: 0 8px 32px 0 rgba(197, 28, 202, 0.37);
+  box-shadow: 0 8px 32px 0 rgba(54, 54, 54, 0.37);
   backdrop-filter: blur(1px);
   -webkit-backdrop-filter: blur(1px);
   border-radius: 10px;
@@ -168,7 +123,7 @@ nav {
 
 /* emojis */
 
-li span:first-child {
+li.toolz span a {
   color: inherit;
   text-decoration: none;
   font-size: 20px; /* Adjust the font size as needed */
@@ -181,8 +136,6 @@ li span:first-child {
   TOOL TIPS =======================>
 
 */
-.toolz {
-}
 
 .tooltipimg {
   visibility: hidden;

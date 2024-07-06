@@ -1,6 +1,6 @@
 // loginForm.tsx
 import React, { useState } from 'react';
-import axios from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 import {
   BrowserRouter as Router,
   Route,
@@ -27,6 +27,9 @@ const ENDPOINT =
 
 const axiosInstance = axios.create({
   baseURL: ENDPOINT,
+  headers: {
+    Authorization: `Bearer ${localStorage.getItem('token')}`,
+  },
 });
 
 interface LoginErrorResponse {
@@ -47,15 +50,17 @@ const LoginForm: React.FC<LoginFormProps> = ({
     e.preventDefault();
 
     try {
-      const response = await axios.post('https://trippy.wtf/forum/api/token', {
-        identification: username,
-        password: password,
-      });
+      const response = await axiosInstance.post(
+        'https://trippy.wtf/forum/api/token',
+        {
+          identification: username,
+          password: password,
+        }
+      );
 
       const { token } = response.data;
 
       if (token) {
-        console.log(token);
         localStorage.setItem('token', token);
         setIsAuthenticated(true);
 
@@ -139,7 +144,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
                 <Link to="/password-request">Forgot Password?</Link>
               </div>
               <div className="text-center mt-3">
-                <Link to="/register"> Sign Up</Link>
+                <Link to="/signup"> Sign Up</Link>
               </div>
             </div>
           </div>

@@ -1,7 +1,8 @@
 // app.tsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import axios, { AxiosRequestConfig } from 'axios';
 import socketIOClient from 'socket.io-client';
-import 'bootswatch/dist/quartz/bootstrap.min.css';
+import 'bootswatch/dist/journal/bootstrap.min.css';
 import {
   BrowserRouter as Router,
   Route,
@@ -17,13 +18,20 @@ import PasswordResetRequestForm from './components/PasswordResetRequestForm';
 import ResetPassword from './components/ResetPassword';
 import './App.css';
 import { jwtDecode } from 'jwt-decode';
-import { Tooltip as ReactTooltip } from 'react-tooltip';
 import screen from './images/screen.png';
+import bcrypt from 'bcryptjs';
 
 const ENDPOINT =
   process.env.NODE_ENV === 'production'
     ? process.env.REACT_APP_PROD_ENDPOINT || ''
     : process.env.REACT_APP_DEV_ENDPOINT || '';
+
+const axiosInstance = axios.create({
+  baseURL: ENDPOINT,
+  headers: {
+    Authorization: `Bearer ${localStorage.getItem('token')}`,
+  },
+});
 
 interface Document {
   title: string;
@@ -39,18 +47,31 @@ interface DecodedToken {
 
 const App: React.FC = () => {
   const [documents, setDocuments] = useState<Document[]>([]);
+  const [sortedDocuments, setSortedDocuments] = useState<Document[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [modifiedLinks, setModifiedLinks] = useState([]);
 
   const checkAuthStatus = () => {
     const token = localStorage.getItem('token');
-    setIsAuthenticated(!!token);
-
     if (token) {
-      const decodedToken: DecodedToken = jwtDecode(token);
-      setIsAdmin(decodedToken.role === 'ADMIN');
+      setIsAuthenticated(true);
+      // You might need to make an API call to get user details including role
+      // since Flarum doesn't seem to include role information in the token
+      axiosInstance
+        .get('/api/users/me')
+        .then((response) => {
+          setIsAdmin(response.data.data.attributes.isAdmin || false);
+        })
+        .catch((error) => {
+          console.error('Error fetching user details:', error);
+          setIsAuthenticated(false);
+          setIsAdmin(false);
+          localStorage.removeItem('token');
+        });
     } else {
+      setIsAuthenticated(false);
       setIsAdmin(false);
     }
   };
@@ -102,10 +123,6 @@ const App: React.FC = () => {
     // Redirect to the login page or home page
     window.location.href = '/';
   };
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
 
   const pageLocationOrder = [
     'Headline',
@@ -181,12 +198,7 @@ const App: React.FC = () => {
     }
   };
 
-  // Sort the documents based on the defined page location order
-  const sortedDocuments = [...documents].sort((a, b) => {
-    const indexA = pageLocationOrder.indexOf(a.pageLocation);
-    const indexB = pageLocationOrder.indexOf(b.pageLocation);
-    return indexA - indexB;
-  });
+  // THIS KEEPS THE TOOLTIP NEAR THE MOUSE AT ALL TIMES
   const handleMouseMove = (event: React.MouseEvent<HTMLLIElement>) => {
     const tooltip = event.currentTarget.querySelector(
       '.tooltipimg'
@@ -199,6 +211,39 @@ const App: React.FC = () => {
       tooltip.style.top = `${event.clientY - top + offsetY}px`;
     }
   };
+
+  useEffect(() => {
+    // Sort the documents based on the defined page location order
+    const sorted = [...documents].sort((a, b) => {
+      const indexA = pageLocationOrder.indexOf(a.pageLocation);
+      const indexB = pageLocationOrder.indexOf(b.pageLocation);
+      return indexA - indexB;
+    });
+    setSortedDocuments(sorted);
+  }, [documents]);
+
+  useEffect(() => {
+    const fetchModifiedLinks = async () => {
+      if (sortedDocuments.length > 0) {
+        try {
+          const response = await axiosInstance.post('/api/modified-links', {
+            sortedDocuments,
+          });
+          setModifiedLinks(response.data);
+          // console.log(response.data);
+        } catch (error) {
+          console.error('Error fetching modified links:', error);
+        }
+      }
+    };
+
+    fetchModifiedLinks();
+  }, [sortedDocuments]);
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
   return (
     <Router>
       <div>
@@ -211,18 +256,20 @@ const App: React.FC = () => {
               <li className="items">
                 <Link to="https://trippy.wtf/forum">FORUM</Link>
               </li>
-              <li className="items">
-                <Link to="/login">LOGIN</Link>
-              </li>
-              <li className="items">
-                <Link to="/signup">SIGNUP</Link>
-              </li>
-              {isAuthenticated && (
+              {!isAuthenticated ? (
+                <>
+                  <li className="items">
+                    <Link to="/login">LOGIN</Link>
+                  </li>
+                  <li className="items">
+                    <Link to="/signup">SIGNUP</Link>
+                  </li>
+                </>
+              ) : (
                 <>
                   <li className="items">
                     <Link to="/profile">Profile</Link>
                   </li>
-
                   <li className="items">
                     <Link to="/" onClick={handleLogout}>
                       Logout
@@ -242,45 +289,26 @@ const App: React.FC = () => {
                 <h1 id="title">
                   Drudge <span id="reader">Reader</span>
                 </h1>
-                <div>
+                <div id="main">
                   <h3 id="cta" className="glowing-text">
                     Read and Comment On The Latest News Stories
                   </h3>
                   <ul className="list">
-                    {sortedDocuments.map((document, index) => {
-                      const modifiedLink = document.link.replace(
-                        /<a/g,
-                        '<a target="_blank"'
-                      );
-
-                      // Extract the text between the <a> tags
-                      const linkTextMatch =
-                        document.link.match(/<a[^>]*>([^<]*)<\/a>/);
-                      const linkText = linkTextMatch ? linkTextMatch[1] : '';
-
-                      // Create the new link with the correct URL format
-                      const newLink = `<a href="https://trippy.wtf/forum/composer?title=${encodeURIComponent(
-                        linkText
-                      )}" target="_blank" className="new" >\u{1F4DD}</a>`;
-
-                      const apiUrl = `https://trippy.wtf/forum/api/discussions?filter[q]=${encodeURIComponent(
-                        linkText
-                      )}`;
-
+                    {modifiedLinks.map(({ linkId, newLink, modifiedLink }) => {
                       return (
                         <li
                           className="toolz"
-                          key={index}
+                          key={linkId}
                           style={{ position: 'relative' }}
                           onMouseMove={handleMouseMove}
                         >
-                          <span dangerouslySetInnerHTML={{ __html: newLink }} />
                           <span
                             dangerouslySetInnerHTML={{ __html: modifiedLink }}
                           />
+                          <span dangerouslySetInnerHTML={{ __html: newLink }} />
                           <img
                             className="tooltipimg"
-                            src={screen}
+                            src={`./images/${linkId}.png`}
                             alt="tooltip"
                           />
                         </li>
@@ -301,7 +329,6 @@ const App: React.FC = () => {
               />
             }
           />
-
           <Route path="/update-profile" element={<UpdateUserProfile />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/password-reset" element={<ResetPassword />} />
