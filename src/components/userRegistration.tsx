@@ -107,7 +107,7 @@ const UserRegistration = () => {
           setErrorMessage('Error setting up the request.');
         }
       } else {
-        setErrorMessage('An unknown error occurred.');
+        setErrorMessage('No response received from the server.');
       }
       setSuccessMessage('');
     }

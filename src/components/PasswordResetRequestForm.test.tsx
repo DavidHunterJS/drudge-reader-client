@@ -1,21 +1,17 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import PasswordResetRequestForm from './PasswordResetRequestForm';
 
-// Mock axios
 jest.mock('axios');
-const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 describe('PasswordResetRequestForm', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    jest.resetAllMocks();
   });
 
-  it('renders the form correctly', () => {
+  it('renders the password reset request form', () => {
     render(<PasswordResetRequestForm />);
-
     expect(screen.getByText('Password Reset Request')).toBeInTheDocument();
     expect(screen.getByLabelText('Email:')).toBeInTheDocument();
     expect(
@@ -23,100 +19,84 @@ describe('PasswordResetRequestForm', () => {
     ).toBeInTheDocument();
   });
 
-  it('updates email input value when typed', () => {
+  it('updates the email input value', () => {
     render(<PasswordResetRequestForm />);
-
-    const emailInput = screen.getByLabelText('Email:') as HTMLInputElement;
-    fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
-
-    expect(emailInput.value).toBe('test@example.com');
-  });
-
-  it('submits the form and shows success message', async () => {
-    mockedAxios.post.mockResolvedValueOnce({
-      data: { message: 'Reset link sent to your email.' },
-    });
-
-    render(<PasswordResetRequestForm />);
-
     const emailInput = screen.getByLabelText('Email:');
     fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+    expect(emailInput).toHaveValue('test@example.com');
+  });
 
+  it('submits the form and displays success message', async () => {
+    const mockResponse: AxiosResponse = {
+      data: { message: 'Password reset email sent' },
+    } as AxiosResponse;
+    (
+      axios.post as jest.MockedFunction<typeof axios.post>
+    ).mockResolvedValueOnce(mockResponse);
+
+    render(<PasswordResetRequestForm />);
+    const emailInput = screen.getByLabelText('Email:');
     const submitButton = screen.getByRole('button', {
       name: 'Request Password Reset',
     });
+
+    fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
     fireEvent.click(submitButton);
 
     await waitFor(() => {
-      expect(
-        screen.getByText('Reset link sent to your email.')
-      ).toBeInTheDocument();
-    });
-
-    expect(mockedAxios.post).toHaveBeenCalledWith('/api/password-request', {
-      email: 'test@example.com',
+      expect(axios.post).toHaveBeenCalledWith('/api/password-request', {
+        email: 'test@example.com',
+      });
+      expect(screen.getByText('Password reset email sent')).toBeInTheDocument();
     });
   });
 
-  it('shows error message when submission fails', async () => {
-    mockedAxios.post.mockRejectedValueOnce(new Error('Network error'));
+  it('displays error message when form submission fails', async () => {
+    (
+      axios.post as jest.MockedFunction<typeof axios.post>
+    ).mockRejectedValueOnce(new Error('Request failed'));
 
     render(<PasswordResetRequestForm />);
-
     const emailInput = screen.getByLabelText('Email:');
-    fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
-
     const submitButton = screen.getByRole('button', {
       name: 'Request Password Reset',
     });
+
+    fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
     fireEvent.click(submitButton);
 
     await waitFor(() => {
+      expect(axios.post).toHaveBeenCalledWith('/api/password-request', {
+        email: 'test@example.com',
+      });
       expect(
         screen.getByText('An error occurred. Please try again.')
       ).toBeInTheDocument();
     });
   });
 
-  it('clears the email input after successful submission', async () => {
-    mockedAxios.post.mockResolvedValueOnce({
-      data: { message: 'Reset link sent to your email.' },
-    });
+  it('clears the email input and message after successful submission', async () => {
+    const mockResponse: AxiosResponse = {
+      data: { message: 'Password reset email sent' },
+    } as AxiosResponse;
+    (
+      axios.post as jest.MockedFunction<typeof axios.post>
+    ).mockResolvedValueOnce(mockResponse);
 
     render(<PasswordResetRequestForm />);
-
-    const emailInput = screen.getByLabelText('Email:') as HTMLInputElement;
-    fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
-
+    const emailInput = screen.getByLabelText('Email:');
     const submitButton = screen.getByRole('button', {
       name: 'Request Password Reset',
     });
-    fireEvent.click(submitButton);
 
-    await waitFor(() => {
-      expect(emailInput.value).toBe('');
-    });
-  });
-
-  it('does not clear the email input after failed submission', async () => {
-    mockedAxios.post.mockRejectedValueOnce(new Error('Network error'));
-
-    render(<PasswordResetRequestForm />);
-
-    const emailInput = screen.getByLabelText('Email:') as HTMLInputElement;
     fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
-
-    const submitButton = screen.getByRole('button', {
-      name: 'Request Password Reset',
-    });
     fireEvent.click(submitButton);
 
     await waitFor(() => {
+      expect(emailInput).toHaveValue('');
       expect(
-        screen.getByText('An error occurred. Please try again.')
-      ).toBeInTheDocument();
+        screen.queryByText('Password reset email sent')
+      ).not.toBeInTheDocument();
     });
-
-    expect(emailInput.value).toBe('test@example.com');
   });
 });

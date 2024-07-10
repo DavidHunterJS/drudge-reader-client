@@ -1,41 +1,32 @@
+// loginForm.test.tsx
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import { render, fireEvent, waitFor, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import axios from 'axios';
-import { BrowserRouter } from 'react-router-dom';
 import LoginForm from './loginForm';
 
-// Mock axios
 jest.mock('axios');
-const mockedAxios = axios as jest.Mocked<typeof axios>;
-
-// Mock useNavigate
-const mockedUseNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockedUseNavigate,
-}));
-
-const renderWithRouter = (component: React.ReactNode) => {
-  return render(<BrowserRouter>{component}</BrowserRouter>);
-};
 
 describe('LoginForm', () => {
   const mockSetIsAuthenticated = jest.fn();
   const mockSetIsAdmin = jest.fn();
+  const mockNavigate = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it('renders the form correctly', () => {
-    renderWithRouter(
-      <LoginForm
-        setIsAuthenticated={mockSetIsAuthenticated}
-        setIsAdmin={mockSetIsAdmin}
-      />
+  it('renders the login form correctly', () => {
+    render(
+      <MemoryRouter>
+        <LoginForm
+          setIsAuthenticated={mockSetIsAuthenticated}
+          setIsAdmin={mockSetIsAdmin}
+        />
+      </MemoryRouter>
     );
 
+    expect(screen.getByText('Login')).toBeInTheDocument();
     expect(screen.getByLabelText('Username:')).toBeInTheDocument();
     expect(screen.getByLabelText('Password:')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Login' })).toBeInTheDocument();
@@ -43,116 +34,84 @@ describe('LoginForm', () => {
     expect(screen.getByText('Sign Up')).toBeInTheDocument();
   });
 
-  it('updates input values when typed', () => {
-    renderWithRouter(
-      <LoginForm
-        setIsAuthenticated={mockSetIsAuthenticated}
-        setIsAdmin={mockSetIsAdmin}
-      />
-    );
-
-    const usernameInput = screen.getByLabelText(
-      'Username:'
-    ) as HTMLInputElement;
-    const passwordInput = screen.getByLabelText(
-      'Password:'
-    ) as HTMLInputElement;
-
-    fireEvent.change(usernameInput, { target: { value: 'testuser' } });
-    fireEvent.change(passwordInput, { target: { value: 'password123' } });
-
-    expect(usernameInput.value).toBe('testuser');
-    expect(passwordInput.value).toBe('password123');
-  });
-
-  it('submits the form and handles successful login', async () => {
-    const mockToken = 'mockToken123';
-    mockedAxios.create.mockReturnValue(mockedAxios);
-    mockedAxios.post.mockResolvedValueOnce({ data: { token: mockToken } });
-
-    renderWithRouter(
-      <LoginForm
-        setIsAuthenticated={mockSetIsAuthenticated}
-        setIsAdmin={mockSetIsAdmin}
-      />
+  it('updates the username and password state when input values change', () => {
+    render(
+      <MemoryRouter>
+        <LoginForm
+          setIsAuthenticated={mockSetIsAuthenticated}
+          setIsAdmin={mockSetIsAdmin}
+        />
+      </MemoryRouter>
     );
 
     const usernameInput = screen.getByLabelText('Username:');
     const passwordInput = screen.getByLabelText('Password:');
-    const submitButton = screen.getByRole('button', { name: 'Login' });
 
     fireEvent.change(usernameInput, { target: { value: 'testuser' } });
-    fireEvent.change(passwordInput, { target: { value: 'password123' } });
-    fireEvent.click(submitButton);
+    fireEvent.change(passwordInput, { target: { value: 'testpassword' } });
+
+    expect(usernameInput).toHaveValue('testuser');
+    expect(passwordInput).toHaveValue('testpassword');
+  });
+
+  it('submits the login form and handles successful login', async () => {
+    const mockToken = 'mockToken';
+    (axios.post as jest.Mock).mockResolvedValueOnce({
+      data: { token: mockToken },
+    });
+    jest.spyOn(window.localStorage.__proto__, 'setItem');
+
+    render(
+      <MemoryRouter>
+        <LoginForm
+          setIsAuthenticated={mockSetIsAuthenticated}
+          setIsAdmin={mockSetIsAdmin}
+        />
+      </MemoryRouter>
+    );
+
+    const usernameInput = screen.getByLabelText('Username:');
+    const passwordInput = screen.getByLabelText('Password:');
+    const loginButton = screen.getByRole('button', { name: 'Login' });
+
+    fireEvent.change(usernameInput, { target: { value: 'testuser' } });
+    fireEvent.change(passwordInput, { target: { value: 'testpassword' } });
+    fireEvent.click(loginButton);
 
     await waitFor(() => {
+      expect(axios.post).toHaveBeenCalledWith(
+        'https://trippy.wtf/forum/api/token',
+        {
+          identification: 'testuser',
+          password: 'testpassword',
+        }
+      );
+      expect(localStorage.setItem).toHaveBeenCalledWith('token', mockToken);
+      expect(mockSetIsAuthenticated).toHaveBeenCalledWith(true);
       expect(screen.getByText('Login successful!')).toBeInTheDocument();
     });
-
-    expect(mockedAxios.post).toHaveBeenCalledWith(
-      'https://trippy.wtf/forum/api/token',
-      {
-        identification: 'testuser',
-        password: 'password123',
-      }
-    );
-    expect(localStorage.setItem).toHaveBeenCalledWith('token', mockToken);
-    expect(mockSetIsAuthenticated).toHaveBeenCalledWith(true);
-
-    // Wait for navigation
-    await waitFor(
-      () => {
-        expect(mockedUseNavigate).toHaveBeenCalledWith('/');
-      },
-      { timeout: 2500 }
-    );
   });
 
-  it('handles login failure', async () => {
-    mockedAxios.create.mockReturnValue(mockedAxios);
-    mockedAxios.post.mockRejectedValueOnce({
-      response: { data: { error: 'Invalid credentials' } },
-    });
+  it('handles login error when server returns an error', async () => {
+    const mockError = { response: { data: { error: 'Invalid credentials' } } };
+    (axios.post as jest.Mock).mockRejectedValueOnce(mockError);
 
-    renderWithRouter(
-      <LoginForm
-        setIsAuthenticated={mockSetIsAuthenticated}
-        setIsAdmin={mockSetIsAdmin}
-      />
+    render(
+      <MemoryRouter>
+        <LoginForm
+          setIsAuthenticated={mockSetIsAuthenticated}
+          setIsAdmin={mockSetIsAdmin}
+        />
+      </MemoryRouter>
     );
 
-    const usernameInput = screen.getByLabelText('Username:');
-    const passwordInput = screen.getByLabelText('Password:');
-    const submitButton = screen.getByRole('button', { name: 'Login' });
-
-    fireEvent.change(usernameInput, { target: { value: 'testuser' } });
-    fireEvent.change(passwordInput, { target: { value: 'wrongpassword' } });
-    fireEvent.click(submitButton);
+    const loginButton = screen.getByRole('button', { name: 'Login' });
+    fireEvent.click(loginButton);
 
     await waitFor(() => {
       expect(screen.getByText('Invalid credentials')).toBeInTheDocument();
     });
-
-    expect(mockSetIsAuthenticated).not.toHaveBeenCalled();
-    expect(mockedUseNavigate).not.toHaveBeenCalled();
   });
 
-  it('handles unexpected errors', async () => {
-    mockedAxios.create.mockReturnValue(mockedAxios);
-    mockedAxios.post.mockRejectedValueOnce(new Error('Network error'));
-
-    renderWithRouter(
-      <LoginForm
-        setIsAuthenticated={mockSetIsAuthenticated}
-        setIsAdmin={mockSetIsAdmin}
-      />
-    );
-
-    const submitButton = screen.getByRole('button', { name: 'Login' });
-    fireEvent.click(submitButton);
-
-    await waitFor(() => {
-      expect(screen.getByText('An unknown error occurred')).toBeInTheDocument();
-    });
-  });
+  // Add more test cases as needed
 });

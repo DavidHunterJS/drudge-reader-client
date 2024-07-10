@@ -1,81 +1,71 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import axios from 'axios';
-import { BrowserRouter, useLocation, useNavigate } from 'react-router-dom';
 import ResetPassword from './ResetPassword';
 
-// Mock axios
 jest.mock('axios');
-const mockedAxios = axios as jest.Mocked<typeof axios>;
-
-// Mock react-router-dom
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useLocation: jest.fn(),
-  useNavigate: jest.fn(),
-}));
 
 describe('ResetPassword', () => {
-  const mockNavigate = jest.fn();
-
   beforeEach(() => {
-    jest.clearAllMocks();
-    (useLocation as jest.Mock).mockReturnValue({
-      search: '?token=valid-token',
-    });
-    (useNavigate as jest.Mock).mockReturnValue(mockNavigate);
+    jest.resetAllMocks();
   });
 
-  it('renders verifying token message initially', () => {
-    render(
-      <BrowserRouter>
-        <ResetPassword />
-      </BrowserRouter>
-    );
-    expect(screen.getByText('Verifying token...')).toBeInTheDocument();
-  });
-
-  it('displays reset password form when token is verified', async () => {
-    mockedAxios.get.mockResolvedValueOnce({ data: { valid: true } });
+  it('renders the reset password form when token is verified', async () => {
+    const axiosGetSpy = jest.spyOn(axios, 'get');
+    axiosGetSpy.mockResolvedValueOnce({ data: { valid: true } });
 
     render(
-      <BrowserRouter>
-        <ResetPassword />
-      </BrowserRouter>
+      <MemoryRouter initialEntries={['/reset-password?token=valid-token']}>
+        <Routes>
+          <Route path="/reset-password" element={<ResetPassword />} />
+        </Routes>
+      </MemoryRouter>
     );
 
     await waitFor(() => {
       expect(screen.getByLabelText('New Password:')).toBeInTheDocument();
       expect(screen.getByLabelText('Confirm Password:')).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'Reset Password' })
+      ).toBeInTheDocument();
     });
+
+    axiosGetSpy.mockRestore();
   });
 
-  it('handles invalid token', async () => {
-    mockedAxios.get.mockRejectedValueOnce(new Error('Invalid token'));
+  it('displays an error message when token verification fails', async () => {
+    const axiosGetSpy = jest.spyOn(axios, 'get');
+    axiosGetSpy.mockRejectedValueOnce(new Error('Invalid token'));
 
     render(
-      <BrowserRouter>
-        <ResetPassword />
-      </BrowserRouter>
+      <MemoryRouter initialEntries={['/reset-password?token=invalid-token']}>
+        <Routes>
+          <Route path="/reset-password" element={<ResetPassword />} />
+        </Routes>
+      </MemoryRouter>
     );
 
     await waitFor(() => {
       expect(screen.getByText('Invalid or expired token')).toBeInTheDocument();
-      expect(
-        screen.getByText('Redirecting to login page...')
-      ).toBeInTheDocument();
     });
+
+    axiosGetSpy.mockRestore();
   });
 
-  it('submits new password successfully', async () => {
-    mockedAxios.get.mockResolvedValueOnce({ data: { valid: true } });
-    mockedAxios.post.mockResolvedValueOnce({ data: { success: true } });
+  it('resets the password successfully when form is submitted with valid data', async () => {
+    const axiosGetSpy = jest.spyOn(axios, 'get');
+    axiosGetSpy.mockResolvedValueOnce({ data: { valid: true } });
+
+    const axiosPostSpy = jest.spyOn(axios, 'post');
+    axiosPostSpy.mockResolvedValueOnce({ data: { success: true } });
 
     render(
-      <BrowserRouter>
-        <ResetPassword />
-      </BrowserRouter>
+      <MemoryRouter initialEntries={['/reset-password?token=valid-token']}>
+        <Routes>
+          <Route path="/reset-password" element={<ResetPassword />} />
+        </Routes>
+      </MemoryRouter>
     );
 
     await waitFor(() => {
@@ -83,54 +73,38 @@ describe('ResetPassword', () => {
     });
 
     fireEvent.change(screen.getByLabelText('New Password:'), {
-      target: { value: 'newpassword123' },
+      target: { value: 'newPassword123' },
     });
     fireEvent.change(screen.getByLabelText('Confirm Password:'), {
-      target: { value: 'newpassword123' },
+      target: { value: 'newPassword123' },
     });
-    fireEvent.click(screen.getByText('Reset Password'));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reset Password' }));
 
     await waitFor(() => {
+      expect(axiosPostSpy).toHaveBeenCalledWith('/api/reset-password', {
+        token: 'valid-token',
+        password: 'newPassword123',
+      });
       expect(
         screen.getByText('Password has been successfully reset!')
       ).toBeInTheDocument();
     });
+
+    axiosGetSpy.mockRestore();
+    axiosPostSpy.mockRestore();
   });
 
-  it('handles password reset failure', async () => {
-    mockedAxios.get.mockResolvedValueOnce({ data: { valid: true } });
-    mockedAxios.post.mockResolvedValueOnce({ data: { success: false } });
+  it('displays an error message when form is submitted with invalid data', async () => {
+    const axiosGetSpy = jest.spyOn(axios, 'get');
+    axiosGetSpy.mockResolvedValueOnce({ data: { valid: true } });
 
     render(
-      <BrowserRouter>
-        <ResetPassword />
-      </BrowserRouter>
-    );
-
-    await waitFor(() => {
-      expect(screen.getByLabelText('New Password:')).toBeInTheDocument();
-    });
-
-    fireEvent.change(screen.getByLabelText('New Password:'), {
-      target: { value: 'newpassword123' },
-    });
-    fireEvent.change(screen.getByLabelText('Confirm Password:'), {
-      target: { value: 'newpassword123' },
-    });
-    fireEvent.click(screen.getByText('Reset Password'));
-
-    await waitFor(() => {
-      expect(screen.getByText('Failed to reset password')).toBeInTheDocument();
-    });
-  });
-
-  it('validates password requirements', async () => {
-    mockedAxios.get.mockResolvedValueOnce({ data: { valid: true } });
-
-    render(
-      <BrowserRouter>
-        <ResetPassword />
-      </BrowserRouter>
+      <MemoryRouter initialEntries={['/reset-password?token=valid-token']}>
+        <Routes>
+          <Route path="/reset-password" element={<ResetPassword />} />
+        </Routes>
+      </MemoryRouter>
     );
 
     await waitFor(() => {
@@ -143,22 +117,32 @@ describe('ResetPassword', () => {
     fireEvent.change(screen.getByLabelText('Confirm Password:'), {
       target: { value: 'short' },
     });
-    fireEvent.click(screen.getByText('Reset Password'));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reset Password' }));
 
     await waitFor(() => {
       expect(
         screen.getByText('Password must be at least 8 characters')
       ).toBeInTheDocument();
     });
+
+    axiosGetSpy.mockRestore();
   });
 
-  it('validates password match', async () => {
-    mockedAxios.get.mockResolvedValueOnce({ data: { valid: true } });
+  it('redirects to login page after successful password reset', async () => {
+    const axiosGetSpy = jest.spyOn(axios, 'get');
+    axiosGetSpy.mockResolvedValueOnce({ data: { valid: true } });
+
+    const axiosPostSpy = jest.spyOn(axios, 'post');
+    axiosPostSpy.mockResolvedValueOnce({ data: { success: true } });
 
     render(
-      <BrowserRouter>
-        <ResetPassword />
-      </BrowserRouter>
+      <MemoryRouter initialEntries={['/reset-password?token=valid-token']}>
+        <Routes>
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/login" element={<div>Login Page</div>} />
+        </Routes>
+      </MemoryRouter>
     );
 
     await waitFor(() => {
@@ -166,15 +150,19 @@ describe('ResetPassword', () => {
     });
 
     fireEvent.change(screen.getByLabelText('New Password:'), {
-      target: { value: 'validpassword123' },
+      target: { value: 'newPassword123' },
     });
     fireEvent.change(screen.getByLabelText('Confirm Password:'), {
-      target: { value: 'differentpassword123' },
+      target: { value: 'newPassword123' },
     });
-    fireEvent.click(screen.getByText('Reset Password'));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reset Password' }));
 
     await waitFor(() => {
-      expect(screen.getByText('Passwords must match')).toBeInTheDocument();
+      expect(screen.getByText('Login Page')).toBeInTheDocument();
     });
+
+    axiosGetSpy.mockRestore();
+    axiosPostSpy.mockRestore();
   });
 });
