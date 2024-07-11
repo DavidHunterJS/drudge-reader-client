@@ -254,7 +254,7 @@ const App: React.FC = () => {
                 <Link to="/">HOME</Link>
               </li>
               <li className="items">
-                <Link to="https://trippy.wtf/forum">FORUM</Link>
+                <a href="https://trippy.wtf/forum">FORUM</a>
               </li>
               {!isAuthenticated ? (
                 <>
