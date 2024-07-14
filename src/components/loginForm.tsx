@@ -1,14 +1,7 @@
 // loginForm.tsx
 import React, { useState } from 'react';
-import axios, { AxiosRequestConfig } from 'axios';
-import {
-  BrowserRouter as Router,
-  Route,
-  Link,
-  Routes,
-  useNavigate,
-} from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';
+import axios from 'axios';
+import { Link, useNavigate } from 'react-router-dom';
 
 interface LoginFormProps {
   setIsAuthenticated: (isAuthenticated: boolean) => void;
@@ -27,9 +20,7 @@ const ENDPOINT =
 
 const axiosInstance = axios.create({
   baseURL: ENDPOINT,
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem('token')}`,
-  },
+  withCredentials: true,
 });
 
 interface LoginErrorResponse {
@@ -50,32 +41,24 @@ const LoginForm: React.FC<LoginFormProps> = ({
     e.preventDefault();
 
     try {
-      const response = await axiosInstance.post(
-        'https://trippy.wtf/forum/api/token',
-        {
-          identification: username,
-          password: password,
-        }
-      );
+      const response = await axiosInstance.post('/api/login', {
+        username, // Make sure this matches what your backend expects
+        password,
+      });
 
-      const { token } = response.data;
+      const { user } = response.data;
 
-      if (token) {
-        localStorage.setItem('token', token);
+      if (user) {
         setIsAuthenticated(true);
-
-        // Decode the token to get user information
-        // const decodedToken: DecodedToken = jwtDecode(token);
-        // console.log(decodedToken);
+        setIsAdmin(user.role === 'admin'); // Adjust based on your user object structure
 
         setSuccess('Login successful!');
         setError('');
-        // Wait for 2 seconds before navigating to the root directory
         setTimeout(() => {
           navigate('/');
         }, 2000);
       } else {
-        setError('Invalid token received from the server');
+        setError('Invalid response received from the server');
         setSuccess('');
       }
     } catch (error: any) {

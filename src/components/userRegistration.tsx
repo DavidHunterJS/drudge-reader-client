@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage, FormikHelpers } from 'formik';
 import * as Yup from 'yup';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 
 const ENDPOINT =
   process.env.NODE_ENV === 'production'
@@ -11,8 +11,16 @@ const axiosInstance = axios.create({ baseURL: ENDPOINT });
 
 // Validation Schema using Yup
 const RegistrationSchema = Yup.object().shape({
+  firstname: Yup.string()
+    .min(2, 'First Name is too short!')
+    .max(16, 'First Name is too long')
+    .required('First Name is required'),
+  lastname: Yup.string()
+    .min(2, 'Last Name is too short!')
+    .max(16, 'Last Name is too long')
+    .required('Last Name is required'),
   username: Yup.string()
-    .min(2, 'Username is too short!')
+    .min(2, 'Userame is too short!')
     .max(16, 'Username is too long')
     .required('Username is required'),
   email: Yup.string().email('Invalid email').required('Email is required'),
@@ -20,23 +28,20 @@ const RegistrationSchema = Yup.object().shape({
     .min(6, 'Password must be at least 6 characters')
     .max(32, 'Password is too long')
     .required('Password is required'),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref('password')], 'Passwords must match')
+    .required('Confirm Password is required'),
+  role: Yup.string().required('Role is required'),
 });
 
 interface FormValues {
+  firstname: string;
+  lastname: string;
   username: string;
   email: string;
   password: string;
-}
-
-interface ErrorResponse {
-  errors: Array<{
-    status: string;
-    code: string;
-    detail: string;
-    source?: {
-      pointer: string;
-    };
-  }>;
+  confirmPassword: string;
+  role: string;
 }
 
 const UserRegistration = () => {
@@ -45,70 +50,44 @@ const UserRegistration = () => {
 
   const handleSubmit = async (
     values: FormValues,
-    { setSubmitting, setFieldError, resetForm }: FormikHelpers<FormValues>
+    { setSubmitting, setFieldError }: FormikHelpers<FormValues>
   ) => {
     try {
       console.log('handleSubmit Fired!!~~~');
-
       // Send a POST request to the backend API to create the user
-      const response = await axios.post(
-        'https://trippy.wtf/forum/api/users',
-        {
-          data: {
-            attributes: {
-              username: values.username,
-              email: values.email,
-              password: values.password,
-            },
-          },
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-            Authorization:
-              'Token ify0FZ00A!JT##Le]5mhR{1y?%!0E3R+G9keQW#7; userId=1',
-          },
-        }
-      );
+      const response = await axiosInstance.post('/api/signup', values);
 
       // Clear form fields
-      resetForm();
-
-      // Set success message
-      setSuccessMessage(
-        `We've sent a confirmation email to ${values.email}. If it doesn't arrive soon, check your spam folder.`
-      );
+      setSuccessMessage('User registered successfully');
       setErrorMessage('');
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 15000);
     } catch (error) {
+      console.error('Error registering user:', error);
+
       if (axios.isAxiosError(error)) {
-        const axiosError = error as AxiosError;
-        if (axiosError.response) {
-          console.log(axiosError);
+        if (error.response) {
           // The request was made and the server responded with a status code
           // that falls out of the range of 2xx
-          const errorData = axiosError.response.data as ErrorResponse;
-          if (errorData && errorData.errors && errorData.errors.length > 0) {
-            const errorDetails = errorData.errors
-              .map((err) => err.detail)
-              .join(', ');
-            setErrorMessage(`Validation error(s): ${errorDetails}`);
+          const errorData = error.response.data;
+          if (
+            typeof errorData === 'object' &&
+            errorData !== null &&
+            (errorData as { error?: string }).error ===
+              'Username or email already exists'
+          ) {
+            setFieldError('username', 'Username already exists');
+            setFieldError('email', 'Email already exists');
           } else {
-            setErrorMessage('An error occurred. Please try again.');
+            setErrorMessage('An error occurred while registering user');
           }
-        } else if (axiosError.request) {
-          // The request was made but no response was received
-          setErrorMessage('No response received from the server.');
         } else {
           // Something happened in setting up the request that triggered an Error
-          setErrorMessage('Error setting up the request.');
+          setErrorMessage('An error occurred while sending the request');
         }
       } else {
-        setErrorMessage('No response received from the server.');
+        // Something happened in setting up the request that triggered an Error
+        setErrorMessage('An unexpected error occurred');
       }
+
       setSuccessMessage('');
     }
 
@@ -131,15 +110,53 @@ const UserRegistration = () => {
               )}
               <Formik
                 initialValues={{
+                  firstname: '',
+                  lastname: '',
                   username: '',
                   email: '',
                   password: '',
+                  confirmPassword: '',
+                  role: 'USER',
                 }}
                 validationSchema={RegistrationSchema}
                 onSubmit={handleSubmit}
               >
                 {({ isSubmitting, errors, touched }) => (
                   <Form>
+                    <div className="form-group">
+                      <label htmlFor="firstname">First Name</label>
+                      <Field
+                        name="firstname"
+                        type="text"
+                        id="firstname"
+                        aria-describedby="firstnameError"
+                        className="form-control"
+                      />
+                      <ErrorMessage
+                        name="firstname"
+                        component="div"
+                        className="invalid-feedback"
+                        id="firstnameError"
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="lastname">Last Name</label>
+                      <Field
+                        name="lastname"
+                        type="text"
+                        id="lastname"
+                        aria-describedby="lastnameError"
+                        className="form-control"
+                      />
+                      <ErrorMessage
+                        name="lastname"
+                        component="div"
+                        className="invalid-feedback"
+                        id="lastnameError"
+                      />
+                    </div>
+
                     <div className="form-group">
                       <label htmlFor="username">Username</label>
                       <Field
@@ -187,11 +204,7 @@ const UserRegistration = () => {
                         type="password"
                         id="password"
                         aria-describedby="passwordError"
-                        className={`form-control ${
-                          errors.password && touched.password
-                            ? 'is-invalid'
-                            : ''
-                        }`}
+                        className="form-control"
                       />
                       <ErrorMessage
                         name="password"
@@ -200,6 +213,42 @@ const UserRegistration = () => {
                         id="passwordError"
                       />
                     </div>
+
+                    <div className="form-group">
+                      <label htmlFor="confirmPassword">Confirm Password</label>
+                      <Field
+                        name="confirmPassword"
+                        type="password"
+                        id="confirmPassword"
+                        aria-describedby="confirmPasswordError"
+                        className="form-control"
+                      />
+                      <ErrorMessage
+                        name="confirmPassword"
+                        component="div"
+                        className="invalid-feedback"
+                        id="confirmPasswordError"
+                      />
+                    </div>
+
+                    {/* <div className="form-group">
+                      <label htmlFor="role">Role</label>
+                      <Field
+                        as="select"
+                        name="role"
+                        id="role"
+                        aria-describedby="roleError"
+                        className="form-control"
+                      >
+                        <option value="USER">User</option>
+                      </Field>
+                      <ErrorMessage
+                        name="role"
+                        component="div"
+                        className="invalid-feedback"
+                        id="roleError"
+                      />
+                    </div> */}
 
                     <button
                       type="submit"
