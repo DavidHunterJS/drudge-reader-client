@@ -2,15 +2,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
-interface LoginFormProps {
-  setIsAuthenticated: (isAuthenticated: boolean) => void;
-  setIsAdmin: (isAdmin: boolean) => void;
-}
-
-interface DecodedToken {
-  role: string;
-  // Add other token properties as needed
+interface LoginErrorResponse {
+  error: string;
 }
 
 const ENDPOINT =
@@ -23,48 +18,28 @@ const axiosInstance = axios.create({
   withCredentials: true,
 });
 
-interface LoginErrorResponse {
-  error: string; // Adapt this based on your server's error response structure
-}
-
-const LoginForm: React.FC<LoginFormProps> = ({
-  setIsAuthenticated,
-  setIsAdmin,
-}) => {
+const LoginForm: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      const response = await axiosInstance.post('/api/login', {
-        username, // Make sure this matches what your backend expects
-        password,
-      });
-
-      const { user } = response.data;
-
-      if (user) {
-        setIsAuthenticated(true);
-        setIsAdmin(user.role === 'admin'); // Adjust based on your user object structure
-
-        setSuccess('Login successful!');
-        setError('');
-        setTimeout(() => {
-          navigate('/');
-        }, 2000);
-      } else {
-        setError('Invalid response received from the server');
-        setSuccess('');
-      }
+      await login(username, password);
+      setSuccess('Login successful!');
+      setError('');
+      setTimeout(() => {
+        navigate('/');
+      }, 2000);
     } catch (error: any) {
       console.error('Login failed:', error);
       if (axios.isAxiosError(error) && error.response) {
-        const serverError = error.response.data as LoginErrorResponse;
+        const serverError = error.response.data as { error: string };
         if (serverError && serverError.error) {
           setError(serverError.error);
         } else {
@@ -127,7 +102,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
                 <Link to="/password-request">Forgot Password?</Link>
               </div>
               <div className="text-center mt-3">
-                <Link to="/signup"> Sign Up</Link>
+                <Link to="/signup">Sign Up</Link>
               </div>
             </div>
           </div>
