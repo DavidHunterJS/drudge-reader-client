@@ -1,3 +1,4 @@
+// userRegistration.tsx
 import React, { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage, FormikHelpers } from 'formik';
 import * as Yup from 'yup';
@@ -11,11 +12,11 @@ const axiosInstance = axios.create({ baseURL: ENDPOINT });
 
 // Validation Schema using Yup
 const RegistrationSchema = Yup.object().shape({
-  firstname: Yup.string()
+  firstName: Yup.string()
     .min(2, 'First Name is too short!')
     .max(16, 'First Name is too long')
     .required('First Name is required'),
-  lastname: Yup.string()
+  lastName: Yup.string()
     .min(2, 'Last Name is too short!')
     .max(16, 'Last Name is too long')
     .required('Last Name is required'),
@@ -35,8 +36,8 @@ const RegistrationSchema = Yup.object().shape({
 });
 
 interface FormValues {
-  firstname: string;
-  lastname: string;
+  firstName: string;
+  lastName: string;
   username: string;
   email: string;
   password: string;
@@ -110,8 +111,8 @@ const UserRegistration = () => {
               )}
               <Formik
                 initialValues={{
-                  firstname: '',
-                  lastname: '',
+                  firstName: '',
+                  lastName: '',
                   username: '',
                   email: '',
                   password: '',
@@ -126,14 +127,14 @@ const UserRegistration = () => {
                     <div className="form-group">
                       <label htmlFor="firstname">First Name</label>
                       <Field
-                        name="firstname"
+                        name="firstName"
                         type="text"
-                        id="firstname"
+                        id="firstName"
                         aria-describedby="firstnameError"
                         className="form-control"
                       />
                       <ErrorMessage
-                        name="firstname"
+                        name="firstName"
                         component="div"
                         className="invalid-feedback"
                         id="firstnameError"
@@ -141,16 +142,16 @@ const UserRegistration = () => {
                     </div>
 
                     <div className="form-group">
-                      <label htmlFor="lastname">Last Name</label>
+                      <label htmlFor="lastName">Last Name</label>
                       <Field
-                        name="lastname"
+                        name="lastName"
                         type="text"
-                        id="lastname"
+                        id="lastName"
                         aria-describedby="lastnameError"
                         className="form-control"
                       />
                       <ErrorMessage
-                        name="lastname"
+                        name="lastName"
                         component="div"
                         className="invalid-feedback"
                         id="lastnameError"

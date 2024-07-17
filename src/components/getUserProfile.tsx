@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useAuth } from '../contexts/AuthContext'; // Adjust the import path as needed
+
 const ENDPOINT =
   process.env.NODE_ENV === 'production'
     ? process.env.REACT_APP_PROD_ENDPOINT || ''
     : process.env.REACT_APP_DEV_ENDPOINT || '';
+
 const axiosInstance = axios.create({
   baseURL: ENDPOINT,
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem('token')}`,
-  },
+  withCredentials: true, // This is important for sending cookies
 });
 
 interface User {
@@ -17,7 +18,8 @@ interface User {
   provider: string;
   email: string;
   username: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   avatar: string;
   role: string;
   createdAt: string;
@@ -25,6 +27,7 @@ interface User {
 }
 
 const UserProfile: React.FC = () => {
+  const { user: authUser, isAuthenticated, isLoading: authLoading } = useAuth();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -32,33 +35,44 @@ const UserProfile: React.FC = () => {
 
   useEffect(() => {
     const fetchUserProfile = async () => {
+      if (authLoading) return;
+
+      if (!isAuthenticated) {
+        navigate('/login');
+        return;
+      }
+
       try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          navigate('/login');
-          return;
-        }
-
-        const response = await axiosInstance.get('/api/profile', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
+        console.log('Fetching user profile...');
+        const response = await axiosInstance.get<User>('/api/profile');
+        console.log('Profile response:', response.data);
         setUser(response.data);
-        setLoading(false);
       } catch (error) {
         console.error('Error fetching user profile:', error);
+        if (axios.isAxiosError(error)) {
+          console.error('Response data:', error.response?.data);
+          console.error('Response status:', error.response?.status);
+        }
         setError('Failed to fetch user profile');
+      } finally {
         setLoading(false);
       }
     };
 
     fetchUserProfile();
-  }, [navigate]);
+  }, [isAuthenticated, authLoading, navigate]);
 
-  if (loading) {
+  if (authLoading || loading) {
     return <div>Loading...</div>;
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div>
+        <p>Please log in to view this page.</p>
+        <p>Redirecting to login page...</p>
+      </div>
+    );
   }
 
   if (error) {
@@ -66,7 +80,7 @@ const UserProfile: React.FC = () => {
   }
 
   if (!user) {
-    return null;
+    return <div>Unable to load user profile. Please try again later.</div>;
   }
 
   return (
@@ -83,7 +97,10 @@ const UserProfile: React.FC = () => {
                 <strong>Email:</strong> {user.email}
               </div>
               <div className="mb-3">
-                <strong>Name:</strong> {user.name}
+                <strong>First Name:</strong> {user.firstName}
+              </div>
+              <div className="mb-3">
+                <strong>Last Name:</strong> {user.lastName}
               </div>
               <div className="mb-3">
                 <strong>Avatar:</strong> {user.avatar}

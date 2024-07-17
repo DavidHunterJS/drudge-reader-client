@@ -13,6 +13,7 @@ import {
 import UserRegistration from './components/userRegistration';
 import LoginForm from './components/loginForm';
 import UpdateUserProfile from './components/updateUserProfile';
+import GetUserProfile from './components/getUserProfile';
 import AdminDashboard from './components/adminDashboard';
 import PasswordResetRequestForm from './components/PasswordResetRequestForm';
 import ResetPassword from './components/ResetPassword';
@@ -26,9 +27,6 @@ const ENDPOINT =
 
 const axiosInstance = axios.create({
   baseURL: ENDPOINT,
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem('token')}`,
-  },
   withCredentials: true,
 });
 
@@ -48,6 +46,18 @@ interface Discussion {
 interface ApiResponse {
   data: Discussion[];
 }
+
+const ProtectedRoute: React.FC<{ element: React.ReactElement }> = ({
+  element,
+}) => {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  return isAuthenticated ? element : <Navigate to="/login" />;
+};
 
 const App: React.FC = () => {
   return (
@@ -253,9 +263,7 @@ const AppContent: React.FC = () => {
         <Route path="/login" element={<LoginForm />} />
         <Route
           path="/profile"
-          element={
-            isAuthenticated ? <UpdateUserProfile /> : <Navigate to="/login" />
-          }
+          element={<ProtectedRoute element={<GetUserProfile />} />}
         />
         <Route
           path="/admin-dashboard"

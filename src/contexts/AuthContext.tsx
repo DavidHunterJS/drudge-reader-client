@@ -11,7 +11,7 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (username: string, password: string) => Promise<User>;
+  login: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -22,7 +22,7 @@ const ENDPOINT =
 
 const axiosInstance = axios.create({
   baseURL: ENDPOINT,
-  withCredentials: true,
+  withCredentials: true, // This is important for sending cookies
 });
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -35,14 +35,25 @@ export const AuthProvider: React.FC<React.PropsWithChildren<{}>> = ({
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if the user is already authenticated
+    console.log('Auth state changed:', { user, isAuthenticated, isLoading });
+  }, [user, isAuthenticated, isLoading]);
+
+  useEffect(() => {
     const checkAuth = async () => {
+      setIsLoading(true);
       try {
         const response = await axiosInstance.get('/api/check-auth');
-        setUser(response.data.user);
-        setIsAuthenticated(true);
+        if (response.data.isAuthenticated) {
+          setUser(response.data.user);
+          setIsAuthenticated(true);
+        } else {
+          setUser(null);
+          setIsAuthenticated(false);
+        }
       } catch (error) {
         console.error('Auth check failed:', error);
+        setUser(null);
+        setIsAuthenticated(false);
       } finally {
         setIsLoading(false);
       }
@@ -51,37 +62,27 @@ export const AuthProvider: React.FC<React.PropsWithChildren<{}>> = ({
     checkAuth();
   }, []);
 
-  const login = async (username: string, password: string): Promise<User> => {
+  const login = async (username: string, password: string): Promise<void> => {
     try {
       const response = await axiosInstance.post('/api/login', {
         username,
         password,
       });
-      const userData = response.data.user;
-      setUser(userData);
+      console.log('Login response:', response.data);
+      setUser(response.data.user);
       setIsAuthenticated(true);
-      return userData;
     } catch (error) {
       console.error('Login failed:', error);
       throw error;
     }
   };
-
-  const clearAuthState = () => {
-    setUser(null);
-    setIsAuthenticated(false);
-    // Clear any auth-related local storage or session storage items
-    localStorage.removeItem('user');
-    sessionStorage.removeItem('user');
-  };
-
   const logout = async () => {
     try {
       await axiosInstance.post('/api/logout');
-      clearAuthState();
+      setUser(null);
+      setIsAuthenticated(false);
     } catch (error) {
       console.error('Logout failed:', error);
-      clearAuthState(); // Still clear state even if server request fails
     }
   };
 
