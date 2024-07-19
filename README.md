@@ -1,46 +1,108 @@
-# Drudge Reader frontend
+# Drudge Reader
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Drudge Reader is a dynamic web application that scrapes the current news stories from the Drudge Report website. This tool not only updates the links in real-time but also enhances the user experience by providing additional features such as link previews and an integrated discussion forum.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- **Real-Time Link Updates:** The application continuously scrapes the Drudge Report to provide users with the latest news stories as they are posted.
+- **Link Previews:** Hovering over a news link displays a screenshot of the corresponding webpage, giving users a quick preview of the content.
+- **Integrated Chat Forum:** Users can discuss news stories they care about in a dedicated forum powered by Flarum, a modern and fast forum software.
 
-### `npm start`
+## Getting Started
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### Prerequisites
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+To run Drudge Reader, you’ll need to have the following installed on your system:
 
-### `npm test`
+- **Node.js:** JavaScript runtime environment
+- **npm:** Node package manager
+- **Flarum:** Forum software to enable user discussions
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Installation
 
-### `npm run build`
+1. **Clone the repository:**
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+    ```bash
+    git clone https://github.com/yourusername/drudge-reader.git
+    cd drudge-reader
+    ```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+2. **Install the necessary dependencies for the server:**
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+    ```bash
+    cd server
+    npm install
+    ```
 
-### `npm run eject`
+3. **Install the necessary dependencies for the client:**
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+    ```bash
+    cd ../client
+    npm install
+    ```
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+4. **Set up the Flarum forum:**
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+    Follow the [Flarum installation guide](https://docs.flarum.org/install.html) to set up your forum. Ensure that it is running and accessible.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+5. **Configure environment variables:**
 
-## Learn More
+    Create a `.env` file in the `server` directory and add the necessary configurations. For example:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+    ```env
+    FLARUM_URL=http://your-flarum-site.com
+    ```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+6. **Start the server:**
+
+    ```bash
+    cd ../server
+    npm start
+    ```
+
+7. **Start the client:**
+
+    ```bash
+    cd ../client
+    npm start
+    ```
+
+    The application should now be running on `http://localhost:3000`.
+
+### Usage
+
+- **Browsing News Links:** Open the application in your web browser. The latest news links from the Drudge Report will be displayed.
+- **Link Previews:** Hover over any news link to see a screenshot of the webpage.
+- **Forum Discussions:** Click on the "Discuss" button next to any news link to join the conversation in the Flarum forum.
+
+## Project Structure
+
+- **/client:** Contains the frontend source code for the application.
+- **/server:** Contains the backend source code for the application, including the Cheerio.js scraper and Puppeteer for link previews.
+- **/public:** Contains static assets like images and HTML files.
+- **.env:** Environment variables for configuration.
+
+## Upcoming Features
+
+- **Docker Support:** A Docker version of the application will be available soon, simplifying the setup and deployment process.
+
+## Contributing
+
+We welcome contributions to Drudge Reader! To contribute:
+
+1. Fork the repository.
+2. Create a new branch for your feature or bugfix.
+3. Commit your changes and push your branch to your fork.
+4. Submit a pull request with a description of your changes.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+## Acknowledgements
+
+- [Drudge Report](https://www.drudgereport.com) for providing the news content.
+- [Flarum](https://flarum.org) for the forum software.
+- [Node.js](https://nodejs.org) and [npm](https://www.npmjs.com) for the development environment.
+- [Cheerio.js](https://cheerio.js.org) for web scraping capabilities.
+- [Puppeteer](https://pptr.dev) for generating link previews.
